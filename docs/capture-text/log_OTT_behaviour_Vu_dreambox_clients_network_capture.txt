@@ -1,0 +1,150 @@
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:13 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776414258 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:14 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776415066 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/ajax/multiepg2
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:15 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776422785 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/ajax/multiepg2
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:22 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776423786 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/ajax/multiepg2
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:23 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776428835 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:28 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776429258 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:29 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+
+GET /api/statusinfo?_=1581776430066 HTTP/1.1
+Host: 82.64.20.189:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: keep-alive
+Referer: http://82.64.20.189:8081/ajax/multiepg2
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 15 Feb 2020 14:20:30 GMT
+Content-Type: text/plain
+Server: TwistedWeb/12.0.0
+
+217
+{"inStandby": "false", "currservice_begin": "14:45", "muted": false, "isRecording": "false", "currservice_station": "L'EQUIPE", "currservice_serviceref": "1:0:19:2076:432:1:C00000:0:0:0:", "volume": 100, "currservice_fulldescription": "CHAMPIONNATS DU MONDE 2020\n14:45 - 16:05\n\nEN DIRECT.  Championnats du monde 2020. Sprint 10 km messieurs. A Antholz-Anterselva (Italie).", "currservice_name": "CHAMPIONNATS DU MONDE 2020", "currservice_filename": "", "transcoding": true, "currservice_end": "16:05", "currservice_description": ""}
+0
+

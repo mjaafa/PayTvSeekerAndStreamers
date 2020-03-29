@@ -1,0 +1,365 @@
+
+main debug: incoming request - stopping current input
+http debug: connection failed
+access error: HTTP connection failure
+http debug: querying proxy for http://185.132.176.178:9024/live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhECV5TUAVQVFtRDwBVBwIFUgdVAVJVAw4CXQsHA1YACwQSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUBAxkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA==
+http debug: no proxy
+http debug: http: server='185.132.176.178' port=9024 file='/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: net: connecting to 185.132.176.178 port 9024
+http error: cannot connect to 185.132.176.178:9024
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+dbus debug: Getting property CanSeek
+main debug: nothing to play
+main debug: processing request item: 366.ts, node: Playlist, skip: 0
+main debug: resyncing on 366.ts
+main debug: 366.ts is at 0
+main debug: starting playback of new item
+main debug: resyncing on 366.ts
+main debug: 366.ts is at 0
+main debug: creating new input thread
+main debug: Creating an input for '366.ts'
+main debug: requesting art for new input thread
+main debug: using timeshift granularity of 50 MiB
+main debug: using default timeshift path
+main debug: `http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' gives access `http' demux `any' path `dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: creating demux: access='http' demux='any' location='dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' file='(null)'
+main debug: looking for access_demux module matching "http": 17 candidates
+main debug: no access_demux modules matched
+main debug: creating access: http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts
+main debug: looking for access module matching "http": 28 candidates
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+qt debug: IM: Setting an input
+http debug: resolving dov.panel-infinity.com ...
+http debug: outgoing request: GET /live/VisiosatINF.13/FW1k4gNU/366.ts HTTP/1.1 Host: dov.panel-infinity.com:8000 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+http debug: incoming response: HTTP/1.1 302 Found Server: VPZ Date: Sat, 15 Feb 2020 14:05:11 GMT Content-Type: text/html; charset=UTF-8 Transfer-Encoding: chunked Connection: keep-alive Access-Control-Allow-Origin: * Location: http://185.132.176.178:9024/live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhEB14CXQVYAgpSVQYFXFACBAUHBQkHU1sCX1ENAlJRCgUSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUABBkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA== Pragma: public Cache-Control: public, must-revalidate, proxy-revalidate 
+http debug: connection failed
+main debug: no access modules matched
+main debug: redirecting to: http://185.132.176.178:9024/live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhEB14CXQVYAgpSVQYFXFACBAUHBQkHU1sCX1ENAlJRCgUSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUABBkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA==
+main debug: creating access: http://185.132.176.178:9024/live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhEB14CXQVYAgpSVQYFXFACBAUHBQkHU1sCX1ENAlJRCgUSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUABBkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA==
+main debug: looking for access module matching "http": 28 candidates
+http debug: resolving 185.132.176.178 ...
+http debug: outgoing request: GET /live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhEB14CXQVYAgpSVQYFXFACBAUHBQkHU1sCX1ENAlJRCgUSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUABBkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA== HTTP/1.1 Host: 185.132.176.178:9024 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+http debug: connection failed
+access error: HTTP connection failure
+http debug: querying proxy for http://185.132.176.178:9024/live/VisiosatINF.13/FW1k4gNU/366.ts?token=HRtbVUALQwhEB14CXQVYAgpSVQYFXFACBAUHBQkHU1sCX1ENAlJRCgUSFEMWRxMDWQhpWlVGD1VTAUoSREBQSjlQVxYJQVMEVgYOQ0kRFQ9VABQJAFENV1IAUwUABBkaFlBXFglBUwBWCAhDSREEHkwARF1QCGoCAEEPU1QRD1YTVV8YEQwPbQJVVQALV0NcGlUUHxMNRhZHDUR9AwcCGCpNVxYfQQNbEkJZFQARW0QKUgIHE0gXBQpCCERDShcCRH9hFh9BBEoSVVYSDFwPRAJHQkATSBcPFmgUVUJHR10HVFZGEVlDA0QcGgwESz4FVwtYVlIQXAkLREQKEwIXFERUXFpaFw5AOUBRBUcJQ18MXAURTA==
+http debug: no proxy
+http debug: http: server='185.132.176.178' port=9024 file='/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: net: connecting to 185.132.176.178 port 9024
+main warning: connection timed out
+http error: cannot connect to 185.132.176.178:9024
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+main debug: changing item without a request (current 0/1)
+main debug: nothing to play
+main debug: processing request item: 366.ts, node: Playlist, skip: 0
+main debug: resyncing on 366.ts
+main debug: 366.ts is at 0
+main debug: starting playback of new item
+main debug: resyncing on 366.ts
+main debug: 366.ts is at 0
+main debug: creating new input thread
+main debug: Creating an input for '366.ts'
+main debug: requesting art for new input thread
+main debug: using timeshift granularity of 50 MiB
+main debug: using default timeshift path
+main debug: `http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' gives access `http' demux `any' path `dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: creating demux: access='http' demux='any' location='dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' file='(null)'
+main debug: looking for access_demux module matching "http": 17 candidates
+main debug: looking for meta fetcher module matching "any": 1 candidates
+main debug: no access_demux modules matched
+main debug: creating access: http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts
+main debug: looking for access module matching "http": 28 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+qt debug: IM: Setting an input
+http debug: resolving dov.panel-infinity.com ...
+http debug: outgoing request: GET /live/VisiosatINF.13/FW1k4gNU/366.ts HTTP/1.1 Host: dov.panel-infinity.com:8000 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+dbus debug: Getting property CanSeek
+dbus debug: Getting property Position
+http debug: incoming response: HTTP/1.1 401 Unauthorized Server: VPZ Date: Sat, 15 Feb 2020 14:15:26 GMT Content-Type: text/html; charset=UTF-8 Transfer-Encoding: chunked Connection: keep-alive Access-Control-Allow-Origin: * 
+access error: HTTP 401 error
+http debug: connection failed
+http debug: querying proxy for http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts
+http debug: no proxy
+http debug: http: server='dov.panel-infinity.com' port=8000 file='/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: net: connecting to dov.panel-infinity.com port 8000
+main debug: connection succeeded (socket = 27)
+http debug: sending request: GET /live/VisiosatINF.13/FW1k4gNU/366.ts HTTP/1.0 Host: dov.panel-infinity.com:8000 User-Agent: VLC/3.0.8 LibVLC/3.0.8 Icy-MetaData: 1 
+http debug: HTTP answer code 401
+http debug: Server: VPZ
+http debug: Content-Type: text/html; charset=UTF-8
+http error: authentication failed without realm
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+dbus debug: Getting property CanSeek
+main debug: changing item without a request (current 0/1)
+main debug: nothing to play
+main debug: processing request item: 366.ts, node: Playlist, skip: 0
+main debug: rebuilding array of current - root Playlist
+main debug: rebuild done - 2 items, index 1
+main debug: starting playback of new item
+main debug: resyncing on 366.ts
+main debug: 366.ts is at 1
+main debug: creating new input thread
+main debug: Creating an input for '366.ts'
+main debug: requesting art for new input thread
+main debug: using timeshift granularity of 50 MiB
+main debug: using default timeshift path
+main debug: `http://10.8.8.15:8001/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' gives access `http' demux `any' path `10.8.8.15:8001/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: creating demux: access='http' demux='any' location='10.8.8.15:8001/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts' file='(null)'
+main debug: looking for access_demux module matching "http": 17 candidates
+main debug: no access_demux modules matched
+main debug: creating access: http://10.8.8.15:8001/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts
+main debug: looking for access module matching "http": 28 candidates
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+qt debug: IM: Setting an input
+http debug: resolving 10.8.8.15 ...
+http debug: outgoing request: GET /1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts HTTP/1.1 Host: 10.8.8.15:8001 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+http debug: connection failed
+access error: HTTP connection failure
+http debug: querying proxy for http://10.8.8.15:8001/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts
+http debug: no proxy
+http debug: http: server='10.8.8.15' port=8001 file='/1:0:19:2329:442:1:0:0:0:0:http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/366.ts'
+main debug: net: connecting to 10.8.8.15 port 8001
+main error: connection failed: Connection refused
+http error: cannot connect to 10.8.8.15:8001
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+main debug: changing item without a request (current 1/2)
+main debug: nothing to play
+main debug: processing request item: 12115.ts, node: Playlist, skip: 0
+main debug: rebuilding array of current - root Playlist
+main debug: rebuild done - 3 items, index 2
+main debug: starting playback of new item
+main debug: resyncing on 12115.ts
+main debug: 12115.ts is at 2
+main debug: creating new input thread
+main debug: Creating an input for '12115.ts'
+main debug: requesting art for new input thread
+main debug: using timeshift granularity of 50 MiB
+main debug: using default timeshift path
+main debug: `http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts' gives access `http' demux `any' path `dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts'
+main debug: creating demux: access='http' demux='any' location='dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts' file='(null)'
+main debug: looking for access_demux module matching "http": 17 candidates
+main debug: no access_demux modules matched
+main debug: creating access: http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts
+main debug: looking for access module matching "http": 28 candidates
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+qt debug: IM: Setting an input
+http debug: resolving dov.panel-infinity.com ...
+http debug: outgoing request: GET /live/VisiosatINF.13/FW1k4gNU/12115.ts HTTP/1.1 Host: dov.panel-infinity.com:8000 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+http debug: incoming response: HTTP/1.1 401 Unauthorized Server: VPZ Date: Sat, 15 Feb 2020 14:18:01 GMT Content-Type: text/html; charset=UTF-8 Transfer-Encoding: chunked Connection: keep-alive Access-Control-Allow-Origin: * 
+access error: HTTP 401 error
+http debug: connection failed
+http debug: querying proxy for http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts
+http debug: no proxy
+http debug: http: server='dov.panel-infinity.com' port=8000 file='/live/VisiosatINF.13/FW1k4gNU/12115.ts'
+main debug: net: connecting to dov.panel-infinity.com port 8000
+main debug: connection succeeded (socket = 27)
+http debug: sending request: GET /live/VisiosatINF.13/FW1k4gNU/12115.ts HTTP/1.0 Host: dov.panel-infinity.com:8000 User-Agent: VLC/3.0.8 LibVLC/3.0.8 Icy-MetaData: 1 
+http debug: HTTP answer code 401
+http debug: Server: VPZ
+http debug: Content-Type: text/html; charset=UTF-8
+http error: authentication failed without realm
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+main debug: changing item without a request (current 2/3)
+main debug: nothing to play
+main debug: processing request item: 12115.ts, node: Playlist, skip: 0
+main debug: resyncing on 12115.ts
+main debug: 12115.ts is at 2
+main debug: starting playback of new item
+main debug: resyncing on 12115.ts
+main debug: 12115.ts is at 2
+main debug: creating new input thread
+main debug: Creating an input for '12115.ts'
+main debug: requesting art for new input thread
+main debug: using timeshift granularity of 50 MiB
+main debug: using default timeshift path
+main debug: `http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts' gives access `http' demux `any' path `dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts'
+main debug: creating demux: access='http' demux='any' location='dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts' file='(null)'
+main debug: looking for access_demux module matching "http": 17 candidates
+main debug: no access_demux modules matched
+main debug: creating access: http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts
+main debug: looking for access module matching "http": 28 candidates
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+main debug: looking for meta fetcher module matching "any": 1 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+main debug: no meta fetcher modules matched
+main debug: looking for art finder module matching "any": 2 candidates
+lua debug: Trying Lua scripts in /home/moh/.local/share/vlc/lua/meta/art
+lua debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+lua debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+lua debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+main debug: no art finder modules matched
+qt debug: IM: Setting an input
+http debug: resolving dov.panel-infinity.com ...
+http debug: outgoing request: GET /live/VisiosatINF.13/FW1k4gNU/12115.ts HTTP/1.1 Host: dov.panel-infinity.com:8000 Accept: */* Accept-Language: en_GB User-Agent: VLC/3.0.8 LibVLC/3.0.8 Range: bytes=0- 
+http debug: incoming response: HTTP/1.1 401 Unauthorized Server: VPZ Date: Sat, 15 Feb 2020 14:20:17 GMT Content-Type: text/html; charset=UTF-8 Transfer-Encoding: chunked Connection: keep-alive Access-Control-Allow-Origin: * 
+access error: HTTP 401 error
+http debug: connection failed
+http debug: querying proxy for http://dov.panel-infinity.com:8000/live/VisiosatINF.13/FW1k4gNU/12115.ts
+http debug: no proxy
+http debug: http: server='dov.panel-infinity.com' port=8000 file='/live/VisiosatINF.13/FW1k4gNU/12115.ts'
+main debug: net: connecting to dov.panel-infinity.com port 8000
+main debug: connection succeeded (socket = 27)
+http debug: sending request: GET /live/VisiosatINF.13/FW1k4gNU/12115.ts HTTP/1.0 Host: dov.panel-infinity.com:8000 User-Agent: VLC/3.0.8 LibVLC/3.0.8 Icy-MetaData: 1 
+http debug: HTTP answer code 401
+http debug: Server: VPZ
+http debug: Content-Type: text/html; charset=UTF-8
+http error: authentication failed without realm
+main debug: no access modules matched
+main debug: dead input
+qt debug: IM: Deleting the input
+main debug: changing item without a request (current 2/3)
+main debug: nothing to play

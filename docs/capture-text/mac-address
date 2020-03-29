@@ -1,0 +1,54 @@
+
+MAC Address Details
+
+Company
+    Zioncom technology co.,ltd
+Address
+    shenzhen guangdong 518000
+    CHINA
+Range
+    78:44:76:00:00:00 - 78:44:76:FF:FF:FF
+Type
+    IEEE MA-L
+
+==> V+2 STBS 
+
+
+
+Démodulateur
+Marque: 	Vu+
+Modèle: 	Duo²
+Processeur: 	7424
+Version Processeur Avant: 	0
+Mémoire totale: 	1240732 kB
+Mémoire libre: 	1101848 kB
+Tps Marche: 	1:15
+Logiciel
+System OE: 	OpenVuplus 2.1
+Distro: 	Black Hole
+Version Logiciel: 	BlackHole 2.1.5.
+Driver date: 	unknown
+Version Kernel: 	3.13.5
+Version IGU: 	2015-02-26-master
+Tuners
+Tuner A: 	Vuplus DVB-S NIM(AVL6211) (DVB-S2)
+Tuner B: 	Vuplus DVB-S NIM(AVL6211) (DVB-S2)
+Tuner C: 	A835B (DVB-T)
+Modèle Disque Dur: ATA(ST3200822AS)
+Capacité: 	186.3 GB ("200 GB")
+Libre: 	76.152 GB
+Interface Réseau: wlan0
+DHCP: 	True
+Adresse IP: 	0.0.0.0/0
+Masque sous réseau: 	0.0.0.0
+Passerelle: 	0.0.0.0
+Adresse MAC: 	78:44:76:b7:22:16
+IPv6 address(es): 	IPv4-only Python/Twisted
+Interface Réseau: eth0
+DHCP: 	False
+Adresse IP: 	192.168.1.7/24
+Masque sous réseau: 	255.255.255.0
+Passerelle: 	192.168.1.1
+Adresse MAC: 	00:1d:ec:08:57:20
+IPv6 address(es): 	IPv4-only Python/Twisted
+
