@@ -1,0 +1,33 @@
+mohamed@mohamed-Blade:~/PycharmProjects/PayTvSeekerAndStreamers$ sudo nmap -O 46.118.147.63/32
+[sudo] password for mohamed: 
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-03-29 16:19 CEST
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40606 > 46.118.147.63:1723  ttl=42 id=23714 iplen=60  seq=573538039 win=128 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40607 > 46.118.147.63:1723 SFPU ttl=43 id=29753 iplen=60  seq=573538039 win=256 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40611 > 46.118.147.63:35999 FPU ttl=39 id=39481 iplen=60  seq=573538039 win=65535 <wscale 15,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40606 > 46.118.147.63:1723  ttl=52 id=32497 iplen=60  seq=573538039 win=128 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40607 > 46.118.147.63:1723 SFPU ttl=54 id=54836 iplen=60  seq=573538039 win=256 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40611 > 46.118.147.63:35999 FPU ttl=45 id=62303 iplen=60  seq=573538039 win=65535 <wscale 15,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40606 > 46.118.147.63:1723  ttl=59 id=23570 iplen=60  seq=573538039 win=128 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40607 > 46.118.147.63:1723 SFPU ttl=37 id=51359 iplen=60  seq=573538039 win=256 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40611 > 46.118.147.63:35999 FPU ttl=44 id=34073 iplen=60  seq=573538039 win=65535 <wscale 15,nop,mss 265,timestamp 4294967295 0,sackOK>
+sendto in send_ip_packet_sd: sendto(4, packet, 60, 0, 46.118.147.63, 16) => Operation not permitted
+Offending packet: TCP 10.8.8.7:40606 > 46.118.147.63:1723  ttl=56 id=62489 iplen=60  seq=573538039 win=128 <wscale 10,nop,mss 265,timestamp 4294967295 0,sackOK>
+Omitting future Sendto error messages now that 10 have been shown.  Use -d2 if you really want to see them.
+Nmap scan report for 46-118-147-63.broadband.kyivstar.net (46.118.147.63)
+Host is up (0.086s latency).
+Not shown: 998 filtered ports
+PORT     STATE SERVICE
+1723/tcp open  pptp
+8081/tcp open  blackice-icecap
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: OpenWrt 12.09-rc1 Attitude Adjustment (Linux 3.3 - 3.7) (91%), Linux 3.11 (91%), Linux 3.2 (91%), Linux 3.2 - 3.10 (91%), Linux 3.2 - 3.16 (91%), Linux 3.2 - 3.8 (91%), Linux 3.5 (91%), Linux 3.8 (91%), XBMCbuntu Frodo v12.2 (Linux 3.X) (91%), Olivetti 65C-9 printer (91%)
+No exact OS matches for host (test conditions non-ideal).

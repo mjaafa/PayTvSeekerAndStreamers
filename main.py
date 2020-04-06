@@ -1,17 +1,22 @@
-#!/usr/binenv python
+#!/usr/bin/env python
+# Package  import
+import logging
+from logging.config import fileConfig
+import Seeker
 
-from streamer_finder import seeker_api
+# package configuration
+fileConfig('configuration/log_conf.ini')
+logger = logging.getLogger()
+
+# clas definition and global variables definition
 
 ######### MAIN #########
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+
+def main():
+    logging.info("Welcome to the Pay Tv illigal STB seeker")
+
+if __name__ == "__main__":
+    main()
 
 
 
