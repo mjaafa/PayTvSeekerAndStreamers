@@ -16,6 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pyvirtualdisplay import Display
 from Database.database import database
+from Crypto.crypto import crypto
 
 import json
 from pprint import pprint
@@ -53,10 +54,13 @@ class seeker():
 
     def __init_load_search_keys(self):
         #self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
-        self.api.searchKeyDatabase = database("searchKeys.db", "SEARCH_API (SEARCH_KEYS TEXT)")
-        database.crypto_init(self.api.searchKeyDatabase)
-        self.generated_clientKey = database.crypto_genKey(self.api.searchKeyDatabase)
-        logging.info("    |->  Booting  component crypto          :  " )
+        self.api.searchKeyDatabase = database("searchKeys.db", "SEARCH_API (SESSION_ENCRYPTION_KEYS TEXT, SEARCH_KEYS TEXT) ")
+#        __instance_crypto__ = crypto()
+        self.cryptoCore = crypto('https://localhost/','127.0.0.1', 443)
+        crypto.crypto_fetchServerToken(self.cryptoCore)
+        logging.info("    |->  Booting  component crypto remote server  : Done ")
+        crypto.crypto_genEncryptionKey(self.cryptoCore)
+        logging.info("    |->  Booting  component crypto generate key   : Done ")
 
     def init_config(self):
         self.__init_load_search_keys();
