@@ -17,7 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pyvirtualdisplay import Display
 from Database.database import database
 from Crypto.crypto import crypto
-
+import hashlib
 import json
 from pprint import pprint
 
@@ -53,16 +53,33 @@ class seeker():
             logging.info("Torrent ::", torrentFiles.text);
 
     def __init_load_search_keys(self):
-        #self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
-        self.api.searchKeyDatabase = database("searchKeys.db", "SEARCH_API (SESSION_ENCRYPTION_KEYS TEXT, SEARCH_KEYS TEXT) ")
 #        __instance_crypto__ = crypto()
         self.cryptoCore = crypto('https://localhost/','127.0.0.1', 443)
         crypto.crypto_fetchServerToken(self.cryptoCore)
         logging.info("    |->  Booting  component crypto remote server  : Done ")
         crypto.crypto_genEncryptionKey(self.cryptoCore)
-        logging.info("    |->  Booting  component crypto generate key   : Done ")
+        logging.info("    |->  Booting  component crypto Encryption generate key   : Done ")
+        crypto.crypto_genDecryptionKey(self.cryptoCore)
+        logging.info("    |->  Booting  component crypto Decryption generate key   : Done ")
+        __remote_client   = crypto.crypto_getClient(self.cryptoCore)
+        __database_name__ = __remote_client + "_search_keys.db"
+        # self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
+        #cur.execute('CREATE TABLE STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)')
+
+        # self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
+
+        self.api.searchKeyDatabase = database(__database_name__,
+                                                      "SEARCH_API (KEY1 BLOB NOT NULL, KEY2 BLOB NOT NULL, TOKEN_HASH TEXT, SEARCH_KEYS TEXT)")
+
+
+        self.sessionKeyFile='sessionKeyFile.key'
+        crypto.crypto_getStoringKeys(self.cryptoCore,
+                                     self.sessionKeyFile);
+
+        #self.api.searchKeyDatabase.database.database_insert(self.api.searchKeyDatabase, storingKeys, 3)
 
     def init_config(self):
+#        self.database_name = __database_name__+ "_search_keys.db";
         self.__init_load_search_keys();
 
     def search(self):

@@ -1,30 +1,46 @@
 import sqlite3
 import logging, pprint
 import os.path
+import hashlib
 
 class database():
     # init database holding
-    def __init__(selfi, __database_name__, __table_definition__):
+    def __init__(self, __database_name__, __table_definition__):
         # Each rocket has an (x,y) position.
         logging.debug("Init Database : %s", __database_name__)
 
         try :
-            conn = sqlite3.connect(__database_name__)
+            self.conn = sqlite3.connect(__database_name__)
         except Exception as err:
-            logging.error("databese [%s] error %s  ", __database_name__, str(err));
+            logging.error("database [%s] error %s  ", __database_name__, str(err));
             return err;
 
-        cur = conn.cursor()
-        #cur.execute('CREATE TABLE STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)')
+        cur = self.conn.cursor()
+        #conn.commit()
         # build query :
-        if (__table_definition__  != '' and not os.path.isfile(__database_name__)):
+        logging.info(" >> %s | %s | %s ", __table_definition__, __database_name__, os.path.isfile(__database_name__))
+        if (os.path.isfile(__database_name__)):
             logging.debug("datbase create : [%s] %s", __database_name__, __table_definition__)
-            query = " " " CREATE TABLE " + str(__table_definition__) + " " " ";
+            query = 'CREATE TABLE IF NOT EXISTS ' + str(__table_definition__) + '';
             logging.warning(" Query %s :", query)
             cur.execute(query)
-            conn.commit()
+            self.conn.commit()
         else:
-            logging.debug("datbase already exsits ")
+            logging.debug("datbase already exsits")
+        self.conn.close()
 
-        conn.close()
+    def database_insert_raw_data(self, __object__, __query_elements__):
+        logging.info("[DATABASE] ");
+        logging.debug("datbase create : [%s] %s", __object__)
+
+        __element__=0
+        while (__element__ < __query_elements__):
+            __element__ = __element__ + 1
+            logging.info(">> %s",__object__[__element__]);
+
+        query = 'INSERT INTO SEARCH_API (KEY1 BLOB NOT NULL, KEY2 BLOB NOT NULL, TOKEN_HASH TEXT, SEARCH_KEYS TEXT';
+        logging.warning(" Query %s : ", query)
+        self.conn.execute(query)
+        self.conn.commit()
+
 

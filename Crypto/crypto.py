@@ -7,6 +7,8 @@ import base64
 import logging, pprint
 import socket, ssl
 import re
+import hashlib
+import pickle
 
 class remote_credentials_data:
     CredTag         = 15
@@ -67,13 +69,13 @@ class crypto():
                 break
             self.serverReply += part
 
-        logging.debug("[Crypto] server reply : %s ", str(self.serverReply.decode('utf-8')))
+        logging.debug("[Crypto] server reply    : %s ", str(self.serverReply.decode('utf-8')))
         self.credential = str(self.serverReply.decode('utf-8')).splitlines()
-        logging.debug("[Crypto] check : %s ", self.credential[remote_credentials_data.CredTag])
+        logging.debug("[Crypto] check           : %s ", self.credential[remote_credentials_data.CredTag])
         logging.debug(repr(wrappedSocket.getpeername()))
         logging.debug(wrappedSocket.cipher())
         logging.debug(pprint.pformat(wrappedSocket.getpeercert()))
-        logging.debug("[Crypto] ::  %s ", self.credential[remote_credentials_data.backend].split(':')[1])
+        logging.debug("[Crypto] backend         :  %s ", self.credential[remote_credentials_data.backend].split(':')[1])
         wrappedSocket.close()
 
     def crypto_fetchServerToken(self):
@@ -81,9 +83,9 @@ class crypto():
             0].strip('"')
         ### The same name :: class definition for the getattr cannot be really found tricky stuff dude .
         #backend_name    = str(self.credential[remote_credentials_data.backend].split(':')[1]).strip('"')
-        #        logging.info(" function caller %s ", _database__function_call)
+        #logging.info(" function caller %s ", backend_name)
         __hash_func__ = getattr(hashes, hash_name)
-        # __backend_func__    = getattr(default_backend,  backend_name)
+        #__backend_func__    = getattr(default_backend,  backend_name)
         kdf = PBKDF2HMAC(
             algorithm=__hash_func__(),
             length=32,
@@ -92,26 +94,47 @@ class crypto():
             backend=default_backend()
         )
 
+        logging.debug("[Crypto] Remote component name =  %s ",
+                      str(self.credential[remote_credentials_data.Name].split(':')[1]).split(',')[0].strip('"'))
         logging.debug("[Crypto] Remote component password =  %s ",
                       str(self.credential[remote_credentials_data.Password].split(':')[1]).split(',')[0].strip('"'))
         password_bytes = str(self.credential[remote_credentials_data.Password].split(':')[1]).split(',')[0].strip(
             '"').encode('utf-8')
-        self.remoteKey = base64.urlsafe_b64encode(kdf.derive(bytes(password_bytes)))
+        self.remoteKeyRAW   = base64.urlsafe_b64encode(kdf.derive(bytes(password_bytes)))
+        self.remoteKey      = Fernet(self.remoteKeyRAW)
 
     def crypto_genEncryptionKey(self):
-        logging.debug("[Crypto] Generate EcryptionKey");
-        self.encryptKey = Fernet(Fernet.generate_key())
-        self.sessionEncryptionToken = MultiFernet([self.remoteKey, self.encryptKey])
+        logging.debug("[Crypto] Generate EncryptionKey");
+        self.encryptionKeyRAW = Fernet.generate_key()
+        self.encryptionKey = Fernet(self.encryptionKeyRAW)
+        self.sessionEncryptionToken = MultiFernet([self.remoteKey, self.encryptionKey])
+        logging.debug("[Crypto] Generate EncryptionKey : %s ", self.sessionEncryptionToken);
 
     def crypto_genDecryptionKey(self):
         logging.debug("[Crypto] Generate DecryptionKey");
-        self.decryptionKey = Fernet(Fernet.generate_key())
-        self.sessionDecryptionToken = MultiFernet(self.remoteKey, self.encryptKey, self.decryptionKey)
+        self.decryptionKeyRAW = Fernet.generate_key()
+        self.decryptionKey = Fernet(self.decryptionKeyRAW)
+        self.remoteKey     = Fernet(self.remoteKeyRAW)
+        self.sessionDecryptionToken = MultiFernet([self.remoteKey, self.encryptionKey, self.decryptionKey])
+        logging.debug("[Crypto] Generate EncryptionKey : %s ", self.encryptionKey);
+        logging.debug("[Crypto] Generate DecryptionKey : %s ", self.sessionDecryptionToken);
 
     def crypto_encrypt(self, __object__):
-        logging.debug("[Crypto] Encrypt instance : %s ", __object__);
+        logging.debug("[Crypto] Encrypt instance        : %s ", __object__);
         self.sessionEncryptionToken.encrypt(__object__)
 
     def crypto_decrypt(self, __object__):
-        logging.debug("[Crypto] Decrypt instance : %s ", __object__);
+        logging.debug("[Crypto] Decrypt instance        : %s ", __object__);
         self.sessionDecryptionToken.decrypt(__object__)
+
+    def crypto_getClient(self):
+        return str(self.credential[remote_credentials_data.Name].split(':')[1]).split(',')[0].strip('"')
+
+    def crypto_getStoringKeys(self, __session_key_file__):
+        file = open(__session_key_file__, 'w')
+        file.write(str(self.remoteKeyRAW))
+        file.write(str(self.encryptionKeyRAW))
+        file.write(str(self.decryptionKeyRAW))
+        file.write(str(hashlib.sha512(self.remoteKeyRAW).hexdigest()))
+        file.close()
+
