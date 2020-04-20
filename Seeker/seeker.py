@@ -16,15 +16,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pyvirtualdisplay import Display
 from Database.database import database
-from Crypto.crypto import crypto
+from CustomCrypto.crypto import crypto
 import hashlib
 import json
 from pprint import pprint
+import os
 
 class seeker():
     # Rocket simulates a rocket ship for a game
     #  or a physics simulation.
-    API_KEY = "PSG9x9oZM83aEaLdkA4KfwYkNpP1jDdH"
     visibility = False
 
     def __init__(self):
@@ -36,9 +36,6 @@ class seeker():
         self.profile = webdriver.FirefoxProfile()
         self.profile.accept_untrusted_certs = True
         self.driver = webdriver.Firefox(firefox_profile=self.profile)
-
-        # configure Xengine
-        self.api = shodan.Shodan(self.API_KEY)
 
     def set_browser_visibilty(self, __visible__):
         self.visibility = __visible__;
@@ -52,44 +49,75 @@ class seeker():
         for torrentFiles in results:
             logging.info("Torrent ::", torrentFiles.text);
 
-    def __init_load_search_keys(self):
-#        __instance_crypto__ = crypto()
+    def __init_storing_search_keys(self):
+        # remote encrypt / decrypt.
         self.cryptoCore = crypto('https://localhost/','127.0.0.1', 443)
-        crypto.crypto_fetchServerToken(self.cryptoCore)
-        logging.info("    |->  Booting  component crypto remote server  : Done ")
-        crypto.crypto_genEncryptionKey(self.cryptoCore)
-        logging.info("    |->  Booting  component crypto Encryption generate key   : Done ")
-        crypto.crypto_genDecryptionKey(self.cryptoCore)
-        logging.info("    |->  Booting  component crypto Decryption generate key   : Done ")
+        logging.debug("cryptoCore : %s ", self.cryptoCore);
+        if ( None != crypto.crypto_fetchServerToken(self.cryptoCore)):
+            logging.info("    |->  Booting  component crypto remote server  : Done ")
+        else:
+            logging.info("    |->  Booting  component crypto remote server  : KO ")
+            logging.error("        Please connect to the network or check the client key certificate : cannot fetch credential ")
+            return None;
+
         __remote_client   = crypto.crypto_getClient(self.cryptoCore)
-        __database_name__ = __remote_client + "_search_keys.db"
-        # self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
-        #cur.execute('CREATE TABLE STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)')
+        self.__database_name__ = __remote_client + "_search_keys.db"
+        self.searchKeyDatabase = database(self.__database_name__, " SEARCH_API (TOKEN_HASH TEXT, KEY1 BLOB NULL, KEY2 BLOB NULL, API_KEY TEXT, SEARCH_KEY TEXT)")
+        if (None != self.searchKeyDatabase.checkEncryption(self.__database_name__,  self.cryptoCore.remoteKeyHash)):
+            logging.info(" check the encryption :: ")
+#            self.searchKeyDatabase.getEncryptKey(self.__database_name__)
+            crypto.crypto_set_generateKeys(self.cryptoCore, False, self.searchKeyDatabase.getEncryptKey(self.__database_name__), self.searchKeyDatabase.getDecryptKey(self.__database_name__))
+        else:
+            crypto.crypto_set_generateKeys(self.cryptoCore, True, None, None)
+            logging.info("    |->  Booting  component crypto Encryption generate key   : Done ")
 
-        # self.api.searchKeyDatabase = database("STBS_List (IP_ADDR VARCHAR, ECM_SENDING TEXT, SNAPSHOT_STREAMER_WITNESS)")
-
-        self.api.searchKeyDatabase = database(__database_name__,
-                                                      "SEARCH_API (KEY1 BLOB NOT NULL, KEY2 BLOB NOT NULL, TOKEN_HASH TEXT, SEARCH_KEYS TEXT)")
-
-
+        crypto.crypto_genEncryptionKey(self.cryptoCore)
+        logging.info("    |->  Booting  component crypto Decryption generate key   : Done ")
+        crypto.crypto_genDecryptionKey(self.cryptoCore)
         self.sessionKeyFile='sessionKeyFile.key'
-        crypto.crypto_getStoringKeys(self.cryptoCore,
-                                     self.sessionKeyFile);
+        # strore keys
+        crypto.crypto_getStoringKeys(self.cryptoCore, self.sessionKeyFile);
 
-        #self.api.searchKeyDatabase.database.database_insert(self.api.searchKeyDatabase, storingKeys, 3)
+        query = " INSERT INTO SEARCH_API (TOKEN_HASH, KEY1, KEY2, API_KEY, SEARCH_KEY) VALUES (?, ?, ?, ?, ?) " ;
+        try:
+            self.searchKeyDatabase.database_insert_raw_data_fromFile(self.__database_name__,
+                                                                     "sessionKeyFile.key",
+                                                                     query,
+                                                                     crypto.crypto_getMiscDataApiKey(self.cryptoCore),
+                                                                     crypto.crypto_getMiscDataModels(self.cryptoCore))
+            os.remove(self.sessionKeyFile)
+        except :
+            logging.info("entry already in there")
+
+        return self
 
     def init_config(self):
-#        self.database_name = __database_name__+ "_search_keys.db";
-        self.__init_load_search_keys();
+        if (None == self.__init_storing_search_keys()):
+            logging.error(" Error configuration cannot be completed ")
+            return None;
+        else:
+            logging.info(" Init Configuration OK ")
+            return self;
 
     def search(self):
-        # Increment the y-position of the rocket.
-        # Perform the search
-        self.query = ' '.join(sys.argv[1:])
-        result = self.api.search("")
+        #engine init :: from remote :::::
+        logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataApiKey(self.cryptoCore))
+        #api_key = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataApiKey(self.cryptoCore))
+        api_key = crypto.crypto_decrypt(self.cryptoCore,self.searchKeyDatabase.getApiKey(self.__database_name__))
+        models = crypto.crypto_decrypt(self.cryptoCore,self.searchKeyDatabase.getSearchKeys(self.__database_name__))
+        logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
+        self.api = shodan.Shodan(api_key.decode("utf-8"))
+####        logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataModels(self.cryptoCore))
+        models = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataModels(self.cryptoCore))
+        logging.info(" >> decrypted models key :: %s ", models.decode("utf-8").split(','))
+        for __keyword__ in models.decode("utf-8").split(','):
+            logging.info(" models search = %s", __keyword__)
+            results = self.api.search(__keyword__)
+            for result in results['matches']:
+                print('IP: {}'.format(result['ip_str']))
 
-
-
+        #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
+        #logging.info(" >> ciphering keys %s ", ciphering_keys)
 #driver_emby = webdriver.Firefox()
 #
 ## Loop through the matches and print each IP
