@@ -54,7 +54,7 @@ class database():
             cur.close()
             return None;
 
-    def database_insert_raw_data_fromFile(self, __database_name__,  __fileName__, __query__, __api_key__, __sample_key__):
+    def database_insert_raw_data_fromFile(self, __database_name__,  __fileName__, __query__, __api_key__, __sample_key__, __version__):
         logging.debug("datbase create : [%s] :: %s", __fileName__, __database_name__)
 
         try :
@@ -89,13 +89,14 @@ class database():
 
         keys.append(__api_key__);
         keys.append((__sample_key__))
+        keys.append((__version__))
         cur = self.conn.cursor()
         cur.execute(__query__, keys)
         self.conn.commit()
         cur.close()
         return self
 
-    def getApiKey(self, __database_name__):
+    def getApiKey(self, __database_name__ , __index__):
         try :
             self.conn = sqlite3.connect(__database_name__)
         except Exception as err:
@@ -103,14 +104,16 @@ class database():
             return err;
 
         cur = self.conn.cursor()
-        cur.execute(" SELECT API_KEY FROM SEARCH_API; ")
+        query = "SELECT API_KEY FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
+        cur.execute(query)
         self.conn.commit()
         result = cur.fetchone()
+        logging.info(" >> api key :: %s ", result)
         logging.info(" >> api key :: %s ", result[0].strip())
         cur.close()
         return result[0].strip()
 
-    def getSearchKeys(self, __database_name__):
+    def getSearchKeys(self, __database_name__, __index__):
         try :
             self.conn = sqlite3.connect(__database_name__)
         except Exception as err:
@@ -118,14 +121,15 @@ class database():
             return err;
 
         cur = self.conn.cursor()
-        cur.execute(" SELECT SEARCH_KEY FROM SEARCH_API; ")
+        query = "SELECT SEARCH_KEY FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
+        cur.execute(query)
         self.conn.commit()
         result = cur.fetchone()
         logging.info(" >> search key :: %s ", result[0].strip())
         cur.close()
         return result[0].strip()
 
-    def getEncryptKey(self, __database_name__):
+    def getEncryptKey(self, __database_name__, __index__):
         try :
             self.conn = sqlite3.connect(__database_name__)
         except Exception as err:
@@ -133,13 +137,14 @@ class database():
             return err;
 
         cur = self.conn.cursor()
-        cur.execute(" SELECT KEY1 FROM SEARCH_API; ")
+        query = "SELECT KEY1 FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
+        cur.execute(query)
         self.conn.commit()
         result = cur.fetchone()
         cur.close()
         return result[0].strip()
 
-    def getDecryptKey(self, __database_name__):
+    def getDecryptKey(self, __database_name__, __index__):
         try:
             self.conn = sqlite3.connect(__database_name__)
         except Exception as err:
@@ -147,7 +152,8 @@ class database():
             return err;
 
         cur = self.conn.cursor()
-        cur.execute(" SELECT KEY2 FROM SEARCH_API; ")
+        query = "SELECT KEY2 FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) + "\""
+        cur.execute(query)
         self.conn.commit()
         result = cur.fetchone()
         cur.close()

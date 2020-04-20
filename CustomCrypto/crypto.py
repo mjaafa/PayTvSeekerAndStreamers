@@ -108,12 +108,18 @@ class crypto():
                       str(self.credential[remote_credentials_data.Name].split(':')[1]).split(',')[0].strip('"'))
         logging.debug("[Crypto] Remote component password =  %s ",
                       str(self.credential[remote_credentials_data.Password].split(':')[1]).split(',')[0].strip('"'))
+        logging.debug("[Crypto] Remote component version =  %s ",
+                      str(self.credential[remote_credentials_data.Version].split(':')[1]).split(',')[0].strip('"'))
         password_bytes = str(self.credential[remote_credentials_data.Password].split(':')[1]).split(',')[0].strip(
             '"').encode('utf-8')
         self.remoteKeyRAW   = base64.urlsafe_b64encode(kdf.derive(bytes(password_bytes)))
         self.remoteKey      = Fernet(self.remoteKeyRAW)
         self.remoteKeyHash  = hashlib.sha512(self.remoteKeyRAW).hexdigest()
         return self;
+
+    def crypto_getremoteHashIndex(self):
+        logging.debug(" >> hash retrieve ");
+        return self.remoteKeyHash
 
     def crypto_set_generateKeys(self, __enable__, __encryption_key__, __decryption_key__):
         self.generateKeys       = __enable__
@@ -175,3 +181,6 @@ class crypto():
                       str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'"))
         __apiKey = str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'")
         return self.crypto_encrypt(__apiKey.encode())
+
+    def crypto_getVersion(self):
+        return str(self.credential[remote_credentials_data.Version].split(':')[1]).split(',')[0].strip('"')

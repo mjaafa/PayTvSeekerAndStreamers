@@ -65,14 +65,16 @@ class seeker():
         self.__database_name__ = __remote_client + "_search_keys.db"
 
         self.searchKeyDatabase = database(self.__database_name__,
-                                          " SEARCH_API (TOKEN_HASH TEXT, KEY1 BLOB NULL, KEY2 BLOB NULL, API_KEY TEXT, SEARCH_KEY TEXT)")
+                                          " SEARCH_API (TOKEN_HASH TEXT, KEY1 BLOB NULL, KEY2 BLOB NULL, API_KEY TEXT, SEARCH_KEY TEXT, VERSION TEXT, PRIMARY KEY (TOKEN_HASH))")
         if (None != self.searchKeyDatabase.checkEncryption(self.__database_name__,
                                                            self.cryptoCore.remoteKeyHash)):
             logging.info(" check the encryption :: ")
             crypto.crypto_set_generateKeys(self.cryptoCore,
                                            False,
-                                           self.searchKeyDatabase.getEncryptKey(self.__database_name__),
-                                           self.searchKeyDatabase.getDecryptKey(self.__database_name__))
+                                           self.searchKeyDatabase.getEncryptKey(self.__database_name__,
+                                                                                crypto.crypto_getremoteHashIndex(self.cryptoCore)),
+                                           self.searchKeyDatabase.getDecryptKey(self.__database_name__,
+                                                                                crypto.crypto_getremoteHashIndex(self.cryptoCore)))
         else:
             crypto.crypto_set_generateKeys(self.cryptoCore,
                                            True,
@@ -87,13 +89,14 @@ class seeker():
         # strore keys
         crypto.crypto_getStoringKeys(self.cryptoCore, self.sessionKeyFile);
 
-        query = " INSERT INTO SEARCH_API (TOKEN_HASH, KEY1, KEY2, API_KEY, SEARCH_KEY) VALUES (?, ?, ?, ?, ?) " ;
+        query = " INSERT INTO SEARCH_API (TOKEN_HASH, KEY1, KEY2, API_KEY, SEARCH_KEY, VERSION) VALUES (?, ?, ?, ?, ?,?) " ;
         try:
             self.searchKeyDatabase.database_insert_raw_data_fromFile(self.__database_name__,
                                                                      "sessionKeyFile.key",
                                                                      query,
                                                                      crypto.crypto_getMiscDataApiKey(self.cryptoCore),
-                                                                     crypto.crypto_getMiscDataModels(self.cryptoCore))
+                                                                     crypto.crypto_getMiscDataModels(self.cryptoCore),
+                                                                     crypto.crypto_getVersion(self.cryptoCore))
             os.remove(self.sessionKeyFile)
         except :
             logging.info("entry already in there")
@@ -113,9 +116,13 @@ class seeker():
         logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataApiKey(self.cryptoCore))
         #api_key = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataApiKey(self.cryptoCore))
         api_key = crypto.crypto_decrypt(self.cryptoCore,
-                                        self.searchKeyDatabase.getApiKey(self.__database_name__))
+                                        self.searchKeyDatabase.getApiKey(self.__database_name__,
+                                        crypto.crypto_getremoteHashIndex(self.cryptoCore)))
+
         models = crypto.crypto_decrypt(self.cryptoCore,
-                                       self.searchKeyDatabase.getSearchKeys(self.__database_name__))
+                                       self.searchKeyDatabase.getSearchKeys(self.__database_name__,
+                                       crypto.crypto_getremoteHashIndex(self.cryptoCore)))
+
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
         self.api = shodan.Shodan(api_key.decode("utf-8"))
 ####        logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataModels(self.cryptoCore))
@@ -123,10 +130,13 @@ class seeker():
         logging.info(" >> decrypted models key :: %s ", models.decode("utf-8").split(','))
         for __keyword__ in models.decode("utf-8").split(','):
             logging.info(" models search = %s", __keyword__)
-            results = self.api.search(__keyword__)
-            for result in results['matches']:
-                print('IP: {}'.format(result['ip_str']))
-
+            try:
+                results = self.api.search(__keyword__)
+                for result in results['matches']:
+                    print('IP: {}'.format(result['ip_str']))
+                    print('IP: {}'.format(result))
+            except:
+                logging.error(" error cannot reach search engine ")
         #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
         #logging.info(" >> ciphering keys %s ", ciphering_keys)
 #driver_emby = webdriver.Firefox()
