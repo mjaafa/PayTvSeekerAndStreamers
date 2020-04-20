@@ -61,14 +61,23 @@ class seeker():
             return None;
 
         __remote_client   = crypto.crypto_getClient(self.cryptoCore)
+
         self.__database_name__ = __remote_client + "_search_keys.db"
-        self.searchKeyDatabase = database(self.__database_name__, " SEARCH_API (TOKEN_HASH TEXT, KEY1 BLOB NULL, KEY2 BLOB NULL, API_KEY TEXT, SEARCH_KEY TEXT)")
-        if (None != self.searchKeyDatabase.checkEncryption(self.__database_name__,  self.cryptoCore.remoteKeyHash)):
+
+        self.searchKeyDatabase = database(self.__database_name__,
+                                          " SEARCH_API (TOKEN_HASH TEXT, KEY1 BLOB NULL, KEY2 BLOB NULL, API_KEY TEXT, SEARCH_KEY TEXT)")
+        if (None != self.searchKeyDatabase.checkEncryption(self.__database_name__,
+                                                           self.cryptoCore.remoteKeyHash)):
             logging.info(" check the encryption :: ")
-#            self.searchKeyDatabase.getEncryptKey(self.__database_name__)
-            crypto.crypto_set_generateKeys(self.cryptoCore, False, self.searchKeyDatabase.getEncryptKey(self.__database_name__), self.searchKeyDatabase.getDecryptKey(self.__database_name__))
+            crypto.crypto_set_generateKeys(self.cryptoCore,
+                                           False,
+                                           self.searchKeyDatabase.getEncryptKey(self.__database_name__),
+                                           self.searchKeyDatabase.getDecryptKey(self.__database_name__))
         else:
-            crypto.crypto_set_generateKeys(self.cryptoCore, True, None, None)
+            crypto.crypto_set_generateKeys(self.cryptoCore,
+                                           True,
+                                           None,
+                                           None)
             logging.info("    |->  Booting  component crypto Encryption generate key   : Done ")
 
         crypto.crypto_genEncryptionKey(self.cryptoCore)
@@ -103,12 +112,14 @@ class seeker():
         #engine init :: from remote :::::
         logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataApiKey(self.cryptoCore))
         #api_key = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataApiKey(self.cryptoCore))
-        api_key = crypto.crypto_decrypt(self.cryptoCore,self.searchKeyDatabase.getApiKey(self.__database_name__))
-        models = crypto.crypto_decrypt(self.cryptoCore,self.searchKeyDatabase.getSearchKeys(self.__database_name__))
+        api_key = crypto.crypto_decrypt(self.cryptoCore,
+                                        self.searchKeyDatabase.getApiKey(self.__database_name__))
+        models = crypto.crypto_decrypt(self.cryptoCore,
+                                       self.searchKeyDatabase.getSearchKeys(self.__database_name__))
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
         self.api = shodan.Shodan(api_key.decode("utf-8"))
 ####        logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataModels(self.cryptoCore))
-        models = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataModels(self.cryptoCore))
+#        models = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataModels(self.cryptoCore))
         logging.info(" >> decrypted models key :: %s ", models.decode("utf-8").split(','))
         for __keyword__ in models.decode("utf-8").split(','):
             logging.info(" models search = %s", __keyword__)
