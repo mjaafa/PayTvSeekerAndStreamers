@@ -8,7 +8,7 @@ import logging, pprint
 import socket, ssl
 import re
 import hashlib
-import pickle
+from binascii import unhexlify
 
 class remote_credentials_data:
     CredTag         = 15
@@ -17,11 +17,14 @@ class remote_credentials_data:
     Version         = 20
     Method          = 29
     Password        = 22
+    backend         = 24
     Algorithm       = 23
     token           = 25
-    backend         = 25
+    keywords        = 26
+    apikey          = 27
 
 class crypto():
+    generateKeys = True;
     def __init__(self, __server_url__, __server_ip__, __server_port__):
         HOST, PORT =  __server_ip__, __server_port__
         URL_PATTERN = re.compile("^(.*://)?([A-Za-z0-9\-\.]+)(:[0-9]+)?(.*)$")
@@ -57,35 +60,42 @@ class crypto():
                                             server_hostname=server_sni_hostname)
 
         # CONNECT AND PRINT REPLY
-        wrappedSocket.connect((HOST, PORT))
-        message = "GET " + PATHNAME + " HTTP/1.1\r\nHost: " + HOSTNAME + "\r\nConnection: close\r\n\r\n"
+        try:
+            wrappedSocket.connect((HOST, PORT))
+            message = "GET " + PATHNAME + " HTTP/1.1\r\nHost: " + HOSTNAME + "\r\nConnection: close\r\n\r\n"
 
-        wrappedSocket.send(message.encode('UTF-8'))
-        self.serverReply = bytearray()
+            wrappedSocket.send(message.encode('UTF-8'))
+            self.serverReply = bytearray()
 
-        while True:
-            part = wrappedSocket.recv(BUFFER_SIZE)
-            if not part:
-                break
-            self.serverReply += part
+            while True:
+                part = wrappedSocket.recv(BUFFER_SIZE)
+                if not part:
+                    break
+                self.serverReply += part
 
-        logging.debug("[Crypto] server reply    : %s ", str(self.serverReply.decode('utf-8')))
-        self.credential = str(self.serverReply.decode('utf-8')).splitlines()
-        logging.debug("[Crypto] check           : %s ", self.credential[remote_credentials_data.CredTag])
-        logging.debug(repr(wrappedSocket.getpeername()))
-        logging.debug(wrappedSocket.cipher())
-        logging.debug(pprint.pformat(wrappedSocket.getpeercert()))
-        logging.debug("[Crypto] backend         :  %s ", self.credential[remote_credentials_data.backend].split(':')[1])
-        wrappedSocket.close()
+            logging.debug("[Crypto] server reply    : %s ", str(self.serverReply.decode('utf-8')))
+            self.credential = str(self.serverReply.decode('utf-8')).splitlines()
+            logging.debug("[Crypto] check           : %s ", self.credential[remote_credentials_data.CredTag])
+            logging.debug(repr(wrappedSocket.getpeername()))
+            logging.debug(wrappedSocket.cipher())
+            logging.debug(pprint.pformat(wrappedSocket.getpeercert()))
+            logging.debug("[Crypto] backend         :  %s ",
+                          self.credential[remote_credentials_data.backend].split(':')[1])
+            wrappedSocket.close()
+        except :
+            logging.error(" Remote Server Error : cannot retrieve credential");
+
+
 
     def crypto_fetchServerToken(self):
-        hash_name = str(self.credential[remote_credentials_data.Algorithm].split(':')[1].split('.')[1]).split(',')[
+        try:
+            hash_name = str(self.credential[remote_credentials_data.Algorithm].split(':')[1].split('.')[1]).split(',')[
             0].strip('"')
-        ### The same name :: class definition for the getattr cannot be really found tricky stuff dude .
-        #backend_name    = str(self.credential[remote_credentials_data.backend].split(':')[1]).strip('"')
-        #logging.info(" function caller %s ", backend_name)
+        except:
+            logging.error(" error no credential retrieved")
+            return None;
+
         __hash_func__ = getattr(hashes, hash_name)
-        #__backend_func__    = getattr(default_backend,  backend_name)
         kdf = PBKDF2HMAC(
             algorithm=__hash_func__(),
             length=32,
@@ -102,17 +112,31 @@ class crypto():
             '"').encode('utf-8')
         self.remoteKeyRAW   = base64.urlsafe_b64encode(kdf.derive(bytes(password_bytes)))
         self.remoteKey      = Fernet(self.remoteKeyRAW)
+        self.remoteKeyHash  = hashlib.sha512(self.remoteKeyRAW).hexdigest()
+        return self;
+
+    def crypto_set_generateKeys(self, __enable__, __encryption_key__, __decryption_key__):
+        self.generateKeys       = __enable__
+        if (False == __enable__):
+            logging.debug("[Crypto] stored keys : %s ", __encryption_key__);
+            logging.debug("[Crypto] stored keys : %s ", __decryption_key__);
+            self.encryptionKeyRAW   = __encryption_key__
+            self.decryptionKeyRAW   = __decryption_key__
 
     def crypto_genEncryptionKey(self):
-        logging.debug("[Crypto] Generate EncryptionKey");
-        self.encryptionKeyRAW = Fernet.generate_key()
+        if(True == self.generateKeys):
+            self.encryptionKeyRAW = Fernet.generate_key()
+            logging.debug("[Crypto] Generate EncryptionKey %s", self.encryptionKeyRAW.decode());
+
         self.encryptionKey = Fernet(self.encryptionKeyRAW)
         self.sessionEncryptionToken = MultiFernet([self.remoteKey, self.encryptionKey])
-        logging.debug("[Crypto] Generate EncryptionKey : %s ", self.sessionEncryptionToken);
+        logging.debug("[Crypto] Generate EncryptionKey : %s", self.sessionEncryptionToken);
 
     def crypto_genDecryptionKey(self):
-        logging.debug("[Crypto] Generate DecryptionKey");
-        self.decryptionKeyRAW = Fernet.generate_key()
+        if(True == self.generateKeys):
+            self.decryptionKeyRAW = Fernet.generate_key()
+            logging.debug("[Crypto] Generate DecryptionKey %s", self.decryptionKeyRAW.decode());
+
         self.decryptionKey = Fernet(self.decryptionKeyRAW)
         self.remoteKey     = Fernet(self.remoteKeyRAW)
         self.sessionDecryptionToken = MultiFernet([self.remoteKey, self.encryptionKey, self.decryptionKey])
@@ -121,20 +145,33 @@ class crypto():
 
     def crypto_encrypt(self, __object__):
         logging.debug("[Crypto] Encrypt instance        : %s ", __object__);
-        self.sessionEncryptionToken.encrypt(__object__)
+        return self.sessionEncryptionToken.encrypt(bytes(__object__))
 
     def crypto_decrypt(self, __object__):
         logging.debug("[Crypto] Decrypt instance        : %s ", __object__);
-        self.sessionDecryptionToken.decrypt(__object__)
+        return self.sessionDecryptionToken.decrypt(bytes(__object__))
 
     def crypto_getClient(self):
         return str(self.credential[remote_credentials_data.Name].split(':')[1]).split(',')[0].strip('"')
 
     def crypto_getStoringKeys(self, __session_key_file__):
-        file = open(__session_key_file__, 'w')
-        file.write(str(self.remoteKeyRAW))
-        file.write(str(self.encryptionKeyRAW))
-        file.write(str(self.decryptionKeyRAW))
-        file.write(str(hashlib.sha512(self.remoteKeyRAW).hexdigest()))
-        file.close()
+        if(True == self.generateKeys):
+            file = open(__session_key_file__, 'w')
+            file.write(str(self.remoteKeyHash) + '\n')
+            logging.info("encryption Key %s ", str(self.encryptionKeyRAW.decode()))
+            file.write(str(self.encryptionKeyRAW.decode()) + '\n')
+            logging.info("decryption Key %s ", str(self.decryptionKeyRAW.decode()))
+            file.write(str(self.decryptionKeyRAW.decode()))
+            file.close()
 
+    def crypto_getMiscDataModels(self):
+        logging.debug("[Crypto] Remote component keyword list =  %s ",
+                      str(self.credential[remote_credentials_data.keywords].split(':')[1]).strip('"').strip("'"))
+        __list = str(self.credential[remote_credentials_data.keywords].split(':')[1]).strip('"').strip("'")
+        return self.crypto_encrypt(__list.encode())
+
+    def crypto_getMiscDataApiKey(self):
+        logging.debug("[Crypto] Remote component API key list =  %s ",
+                      str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'"))
+        __apiKey = str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'")
+        return self.crypto_encrypt(__apiKey.encode())

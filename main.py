@@ -43,15 +43,19 @@ def __boot__():
     seeker.set_browser_visibilty(__seeker__instance__, True);
     logging.info("    |->  Booting  component seeker browser        : %s ",
                  ("Hidden", "Visible") [bool(seeker.get_browser_visibilty(__seeker__instance__)) == True] )
-    seeker.init_config(__seeker__instance__);
-    logging.info("    |->  Booting  component Seeker configuration ")
+    if (None != seeker.init_config(__seeker__instance__)):
+        logging.info("    |->  Booting  component Seeker configuration : Done")
+        return __seeker__instance__;
+    else:
+        logging.info("    |->  Booting  component Seeker configuration : NOK ")
+        return None;
 
 def main():
     logging.info(" *** PayTV BlackMamba seeker ***")
-    __boot__();
+    seeker__ = __boot__();
+    if (None == seeker__):
+        return None;
+    seeker.search(seeker__)
 
 if __name__ == "__main__":
     main()
-
-
-
