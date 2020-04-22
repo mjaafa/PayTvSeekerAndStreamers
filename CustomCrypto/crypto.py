@@ -39,9 +39,9 @@ class crypto():
         HOSTNAME = URL_DATA.groups()[1]
         PATHNAME = URL_DATA.groups()[3] if URL_DATA.groups()[3] != "" else "/"
 
-        server_cert = 'nginx-selfsigned.crt'
-        client_cert = 'client.crt'
-        client_key  = 'client.key'
+        server_cert = 'server-nginx-configuration/client-conf/nginx-selfsigned.crt'
+        client_cert = 'server-nginx-configuration/client-conf/client.crt'
+        client_key  = 'server-nginx-configuration/client-conf/client.key'
         server_sni_hostname = __server_ip__
         BUFFER_SIZE = 1024
 
