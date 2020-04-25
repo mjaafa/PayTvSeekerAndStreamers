@@ -39,6 +39,9 @@ class crypto():
         HOSTNAME = URL_DATA.groups()[1]
         PATHNAME = URL_DATA.groups()[3] if URL_DATA.groups()[3] != "" else "/"
 
+        #server_cert = 'server-nginx-configuration/client-conf/nginx-selfsigned.crt'
+        #client_cert = 'server-nginx-configuration/client-conf/client.crt'
+        #client_key  = 'server-nginx-configuration/client-conf/client.key'
         server_cert = 'server-nginx-configuration/client-conf/nginx-selfsigned.crt'
         client_cert = 'server-nginx-configuration/client-conf/client.crt'
         client_key  = 'server-nginx-configuration/client-conf/client.key'
@@ -115,6 +118,7 @@ class crypto():
         self.remoteKeyRAW   = base64.urlsafe_b64encode(kdf.derive(bytes(password_bytes)))
         self.remoteKey      = Fernet(self.remoteKeyRAW)
         self.remoteKeyHash  = hashlib.sha512(self.remoteKeyRAW).hexdigest()
+        ## to make it less decryptable use the token too ()
         return self;
 
     def crypto_getremoteHashIndex(self):
