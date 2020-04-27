@@ -183,6 +183,8 @@ class crypto():
     def crypto_getMiscDataApiKey(self):
         logging.debug("[Crypto] Remote component API key list =  %s ",
                       str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'"))
+        logging.debug("[Crypto] Remote component API key list =  %s ",
+                      str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'"))
         __apiKey = str(self.credential[remote_credentials_data.apikey].split(':')[1]).strip('"').strip("'")
         return self.crypto_encrypt(__apiKey.encode())
 
