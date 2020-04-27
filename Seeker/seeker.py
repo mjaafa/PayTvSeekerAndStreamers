@@ -3,7 +3,6 @@
 # Search SHODAN and print a list of IPs matching the query
 #
 # Author: achillean
-import shodan
 from time import sleep
 import sys
 import logging
@@ -15,16 +14,18 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from pyvirtualdisplay import Display
-from Database.database import database
-from CustomCrypto.crypto import crypto
 import hashlib
 import json
 from pprint import pprint
 import os
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from pyvirtualdisplay import Display
+from Database.database import database
+from CustomCrypto.crypto import crypto
+from Engine.shodan_api import shodan_api
+from Engine.censys_api import censys
 
 class seeker():
     # Rocket simulates a rocket ship for a game
@@ -33,15 +34,16 @@ class seeker():
 
     def __init__(self):
         # init webdriver
-        self.display = Display(visible=self.visibility, size=(800, 600))
-        self.display.start()
+        #self.display = Display(visible=self.visibility, size=(800, 600))
+        #self.display.start()
 
         # Configuration browser
         #self.profile = webdriver.FirefoxProfile()
         #self.profile.accept_untrusted_certs = True
         #self.driver = webdriver.Firefox(firefox_profile=self.profile)
-        self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
-        self.desired_capabilities['acceptInsecureCerts'] = True
+        #self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+        #self.desired_capabilities['acceptInsecureCerts'] = True
+        logging.info(" init ")
 
     def set_browser_visibilty(self, __visible__):
         self.visibility = __visible__;
@@ -117,6 +119,26 @@ class seeker():
             logging.info(" Init Configuration OK ")
             return self;
 
+    def _show_reults(self, results):
+        #        results = self.api.search()
+        for result in results:
+            logging.debug("url %s ", result)
+            # logging.debug("results : %s ", result['data'])
+            desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+            desired_capabilities['acceptInsecureCerts'] = True
+            driver = webdriver.Firefox(capabilities=desired_capabilities)
+            driver.accept_untrusted_certs = True
+            driver.acceptSslCerts = True
+            driver.set_window_size(1024, 768)
+            try:
+                driver.implicitly_wait(10)
+                driver.get(result)
+            except:
+                logging.debug(" page unreachable ...");
+                driver.close()
+                continue;
+                pass;
+
     def search(self):
         #engine init :: from remote :::::
         logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataApiKey(self.cryptoCore))
@@ -129,59 +151,25 @@ class seeker():
                                        self.searchKeyDatabase.getSearchKeys(self.__database_name__,
                                        crypto.crypto_getremoteHashIndex(self.cryptoCore)))
 
+        logging.info("get api key  encrypted : %s ", self.searchKeyDatabase.getSearchKeys(self.__database_name__,
+                                                     crypto.crypto_getremoteHashIndex(self.cryptoCore)))
+
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
-        self.api = shodan.Shodan(api_key.decode("utf-8"))
-        logging.info(" >> decrypted models key :: %s ", models.decode("utf-8").split(','))
-        for __keyword__ in models.decode("utf-8").split(','):
-            logging.info(" models search = %s", __keyword__)
-            try:
-                results = self.api.search(__keyword__)
-                for result in results['matches']:
-                    #logging.debug("results : %s ", result['data'])
-                    #logging.debug("results : %s ", result)
+        logging.info(" >> decrypted models key :: %s ", models.decode("utf-8"))
 
-                    if (result['port'] == 80):
-                        driver = webdriver.Firefox(capabilities=self.desired_capabilities)
-                        driver.accept_untrusted_certs = True
-                        driver.acceptSslCerts = True
-                        urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-                        logging.debug("URL %s ", urld)
-                        driver.set_window_size(1024, 768)
-                        try:
-                            driver.implicitly_wait(10)
-                            driver.get(urld)
-                        except:
-                            logging.debug(" page unreachable ...");
-                            continue;
-                            pass;
-                    elif (result['port'] == 443):
-                        driver = webdriver.Firefox()
-                        urld = 'https://{}'.format(result['ip_str']) + ':' + str(result['port'])
-                        logging.debug("URL %s", urld)
-                        driver.set_window_size(1024, 768)
-                        try:
-                            driver.implicitly_wait(10)
-                            driver.get(urld)
-                        except:
-                            logging.debug(" page unreachable ...");
-                            continue;
-                            pass;
-                    else:
-                        driver = webdriver.Firefox()
-                        urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-                        logging.debug("URL %s", urld)
-                        driver.set_window_size(1024, 768)
-                        try:
-                            driver.implicitly_wait(10)
-                            driver.get(urld)
-                        except:
-                            logging.debug(" page unreachable ...");
-                            continue;
-                            pass;
+        self.shodan_api = shodan_api(api_key.decode("utf-8"),
+                                            models.decode("utf-8"))
 
-            except :
-                logging.error(" Error : cannot walkthrough the list")
+        results = self.shodan_api.search()
 
+        self._show_reults(results);
+
+        self.censys_api = censys(api_key,
+                                 models.decode("utf-8"))
+
+        results = self.censys_api.search()
+
+        self._show_reults(results);
 
         #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
         #logging.info(" >> ciphering keys %s ", ciphering_keys)
