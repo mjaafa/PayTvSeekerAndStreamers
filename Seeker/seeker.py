@@ -30,6 +30,7 @@ from Engine.shodan_api import shodan_api
 from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
 
+
 class seeker():
     # Rocket simulates a rocket ship for a game
     #  or a physics simulation.
@@ -190,6 +191,8 @@ class seeker():
             logging.info(" error censys api ")
 
 
+
+        self._show_reults(results);
 
         #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
         #logging.info(" >> ciphering keys %s ", ciphering_keys)

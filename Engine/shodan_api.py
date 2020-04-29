@@ -2,6 +2,7 @@ import shodan
 import logging
 import Colorer
 
+
 class shodan_api():
     def __init__( self, __api_key__, __models__):
         logging.info(" shodan api init")
