@@ -1,5 +1,7 @@
 import sqlite3
 import logging, pprint
+import Colorer
+
 import os.path
 import hashlib
 import pickle

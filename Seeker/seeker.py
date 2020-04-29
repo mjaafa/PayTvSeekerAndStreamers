@@ -6,6 +6,8 @@
 from time import sleep
 import sys
 import logging
+import Colorer
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -26,6 +28,7 @@ from Database.database import database
 from CustomCrypto.crypto import crypto
 from Engine.shodan_api import shodan_api
 from Engine.censys_api import censys
+from Engine.zoomeye_api import zoomeye
 
 class seeker():
     # Rocket simulates a rocket ship for a game
@@ -157,19 +160,36 @@ class seeker():
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
         logging.info(" >> decrypted models key :: %s ", models.decode("utf-8"))
 
+        self.zoomeye_api = zoomeye(api_key,
+                                 models.decode("utf-8"))
+
+        try:
+            results = self.zoomeye_api.search()
+            self._show_reults(results);
+
+        except :
+            logging.info(" error zoomeye api ")
+
         self.shodan_api = shodan_api(api_key.decode("utf-8"),
-                                            models.decode("utf-8"))
+                                     models.decode("utf-8"))
 
-        results = self.shodan_api.search()
-
-        self._show_reults(results);
+        try:
+            results = self.shodan_api.search()
+            self._show_reults(results);
+        except :
+            logging.info(" error shodan api ")
 
         self.censys_api = censys(api_key,
                                  models.decode("utf-8"))
 
-        results = self.censys_api.search()
+        try:
+            results = self.censys_api.search()
+            self._show_reults(results);
 
-        self._show_reults(results);
+        except :
+            logging.info(" error censys api ")
+
+
 
         #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
         #logging.info(" >> ciphering keys %s ", ciphering_keys)

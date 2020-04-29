@@ -1,5 +1,6 @@
 import shodan
 import logging
+import Colorer
 
 class shodan_api():
     def __init__( self, __api_key__, __models__):
@@ -21,7 +22,6 @@ class shodan_api():
                 results = self.api.search(__keyword__)
                 for result in results['matches']:
                     logging.debug("results : %s ", result['data'])
-                    # logging.debug("results : %s ", result)
 
                     if (result['port'] == 80):
                         urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
