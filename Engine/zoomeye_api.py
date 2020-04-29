@@ -18,24 +18,19 @@ from pyvirtualdisplay import Display
 desired_capabilities = DesiredCapabilities.FIREFOX.copy()
 desired_capabilities['acceptInsecureCerts'] = True
 
-class censys():
+class zoomeye():
 
-    predefined_syntax_basic_url      = "https://censys.io/ipv4?q="
-    predefined_filter_443_code       = "+443.http.get.status_code%3A+200+"
-    predefined_filter_80_code        = "80.http.get.status_code%3A200+"
-    predefined_filter_443_line       = "443.http.get.status_line%3A+200+"
-    predefined_filter_80_line        = "80.http.get.status_line%3A200"
+    predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q=" \
+                                       #"app%3A%22CCcam%20DVR%20card%20sharing%20system%20information%22"
     use_rest_api                     = False;
     visibility                       = True;
 
     def __init__( self, __api_key__, __models__):
-        __api_key = str(__api_key__).split(",")[1]
+        __api_key = str(__api_key__).split(",")[2]
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
-        self.secret  = __api_key.split("@")[2]
         logging.debug(" API KEY : %s ", self.api_key)
-        logging.debug(" secret KEY : %s ", self.secret)
-        if (None == self.api_key or None == self.secret):
+        if (None == self.api_key):
             self.use_rest_api = False;
 
         logging.info(" censys api init")
@@ -46,9 +41,7 @@ class censys():
         url_built = []
         for __keyword__ in self.api_keywords.split(','):
             logging.info(" models search = %s", __keyword__)
-            url = self.predefined_syntax_basic_url  + __keyword__.replace(" ","+")  + \
-                  self.predefined_filter_443_code  +  self.predefined_filter_80_code  + \
-                  self.predefined_filter_443_line + self.predefined_filter_80_line
+            url = self.predefined_syntax_basic_url  + __keyword__.replace(" ","%20")
             logging.debug(" url :: %s ", url);
             url_built.append(url)
 
@@ -59,19 +52,19 @@ class censys():
         line  = []
         logging.info("Check Potential Streamers :")
         #   / html / body / div[1] / div[2] / div / div / div / div[5] / div / div[2] / div / div[25]
-        next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+        next_page = self.driver.find_elements_by_css_selector(".ant-pagination-next")
         try :
             while None != next_page:
-                results = self.driver.find_elements_by_css_selector("#resultset");
+                results = self.driver.find_elements_by_css_selector("div.search-result-item");
                 for line in results[0].text.split('\n'):
                     #stripped_line = line.strip()
                     logging.debug("Search info : %s ", line)
 
-                next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+                next_page = self.driver.find_elements_by_css_selector(".ant-pagination-next")
                 if None == next_page:
                     self.driver.close()
                     return line
-                self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
+                self.driver.find_element_by_css_selector('.ant-pagination-next').click()
         except :
             logging.error("error page ")
         return line
@@ -80,7 +73,6 @@ class censys():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-
         for url in __urls__:
             try:
                 if (None != url):
@@ -112,14 +104,12 @@ class censys():
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
                         time.sleep(31.4)
-
                     except:
                         print(" page unreachable ...");
                         continue;
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
-
                 # print(response.text['Name'], " has a password : ", response.text['HasPassword'])  # To print formatted JSON response
 #                try:
 #                    json_results = json.loads((response.text))
@@ -183,3 +173,5 @@ class censys():
 #                logging.error("Timeout Error:", errt)
 #            except requests.exceptions.RequestException as err:
 #                logging.error("OOps: Something Else", err)
+
+
