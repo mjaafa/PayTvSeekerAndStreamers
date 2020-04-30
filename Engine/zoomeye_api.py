@@ -25,6 +25,7 @@ class zoomeye():
     use_rest_api                     = False;
     visibility                       = False;
 
+
     def __init__( self, __api_key__, __models__):
         __api_key = str(__api_key__).split(",")[2]
         logging.info(" api key : %s ", __api_key.split("@")[1])

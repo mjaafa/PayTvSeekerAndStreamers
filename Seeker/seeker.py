@@ -32,6 +32,7 @@ from Engine.zoomeye_api import zoomeye
 from Engine.alexa_api import alexa_api
 
 
+
 class seeker():
     # Rocket simulates a rocket ship for a game
     #  or a physics simulation.
@@ -180,6 +181,7 @@ class seeker():
         except :
             logging.info(" error censys api ")
 
+
         self.zoomeye_api = zoomeye(api_key,
                                  models.decode("utf-8"))
 
@@ -212,9 +214,6 @@ class seeker():
                 logging.info(" error alexa api ");
         except :
             logging.info(" error shodan api ");
-
-
-
 
 #        self._show_reults(results);
 

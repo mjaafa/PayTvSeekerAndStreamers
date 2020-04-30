@@ -63,6 +63,7 @@ class censys():
         logging.info("Check Potential Streamers :")
         #   / html / body / div[1] / div[2] / div / div / div / div[5] / div / div[2] / div / div[25]
         index_element = 1;
+
         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
         try :
             while None != next_page:
@@ -94,6 +95,7 @@ class censys():
                 self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
 #                if (element_index == 25):
 #                    element_index = 1;
+
         except :
             logging.error("error page ")
         return line
@@ -104,6 +106,7 @@ class censys():
         page_results = []
 
         for self.url in __urls__:
+
             try:
                 if (None != self.url):
                     #response = requests.get(url, timeout=30, verify=False)  # To execute get request
@@ -144,6 +147,7 @@ class censys():
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
                         time.sleep(2.4)
+
 
                     except:
                         print(" page unreachable ...");
