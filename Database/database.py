@@ -20,9 +20,9 @@ class database():
             logging.error("database [%s] error %s  ", __database_name__, str(err));
             return err;
 
-        cur = self.conn.cursor()
         # build query :
         logging.debug(" >> %s | %s | %s ", __table_definition__, __database_name__, os.path.isfile(__database_name__))
+        cur = self.conn.cursor()
         if (os.path.isfile(__database_name__)):
             logging.debug("datbase create : [%s] %s", __database_name__, __table_definition__)
             query = 'CREATE TABLE IF NOT EXISTS ' + str(__table_definition__) + '';

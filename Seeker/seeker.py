@@ -29,6 +29,8 @@ from CustomCrypto.crypto import crypto
 from Engine.shodan_api import shodan_api
 from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
+from Engine.alexa_api import alexa_api
+
 
 
 class seeker():
@@ -161,12 +163,38 @@ class seeker():
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
         logging.info(" >> decrypted models key :: %s ", models.decode("utf-8"))
 
+
+        self.censys_api = censys(api_key,
+                                 models.decode("utf-8"))
+
+        try:
+            results = self.censys_api.search()
+            self._show_reults(results);
+            try:
+                self.alexa_api_search = alexa_api("censys")
+                results = self.alexa_api_search.search()
+                self._show_reults(results);
+                logging.info("[SEEKER] %s", self.show_results)
+            except :
+                logging.info(" error alexa api ");
+
+        except :
+            logging.info(" error censys api ")
+
+
         self.zoomeye_api = zoomeye(api_key,
                                  models.decode("utf-8"))
 
         try:
             results = self.zoomeye_api.search()
             self._show_reults(results);
+            try:
+                self.alexa_api_search = alexa_api(None)
+                results = self.alexa_api_search.search()
+                self._show_reults(results);
+                logging.info("[SEEKER] %s", self.show_results)
+            except :
+                logging.info(" error alexa api ");
 
         except :
             logging.info(" error zoomeye api ")
@@ -175,24 +203,19 @@ class seeker():
                                      models.decode("utf-8"))
 
         try:
+            self.alexa_api_search = alexa_api(None)
             results = self.shodan_api.search()
             self._show_reults(results);
+            try:
+                results = self.alexa_api_search.search()
+                self._show_reults(results);
+                logging.info("[SEEKER] %s", self.show_results)
+            except :
+                logging.info(" error alexa api ");
         except :
-            logging.info(" error shodan api ")
+            logging.info(" error shodan api ");
 
-        self.censys_api = censys(api_key,
-                                 models.decode("utf-8"))
-
-        try:
-            results = self.censys_api.search()
-            self._show_reults(results);
-
-        except :
-            logging.info(" error censys api ")
-
-
-
-        self._show_reults(results);
+#        self._show_reults(results);
 
         #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
         #logging.info(" >> ciphering keys %s ", ciphering_keys)

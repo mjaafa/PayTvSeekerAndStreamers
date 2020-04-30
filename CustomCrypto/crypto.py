@@ -77,8 +77,8 @@ class crypto():
             logging.debug("[Crypto] server reply    : %s ", str(self.serverReply.decode('utf-8')))
             self.credential = str(self.serverReply.decode('utf-8')).splitlines()
             logging.debug("[Crypto] check           : %s ", self.credential[remote_credentials_data.CredTag])
-            logging.debug(repr(wrappedSocket.getpeername()))
-            logging.debug(wrappedSocket.cipher())
+            logging.debug("[Crypto] peer name : %s", repr(wrappedSocket.getpeername()))
+            logging.debug("[Crypto] Cypher : %s ", wrappedSocket.cipher())
             logging.debug(pprint.pformat(wrappedSocket.getpeercert()))
             logging.debug("[Crypto] backend         :  %s ",
                           self.credential[remote_credentials_data.backend].split(':')[1])
