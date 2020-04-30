@@ -80,6 +80,7 @@ class censys():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
+
         for url in __urls__:
             try:
                 if (None != url):
@@ -111,12 +112,14 @@ class censys():
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
                         time.sleep(31.4)
+
                     except:
                         print(" page unreachable ...");
                         continue;
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
+
                 # print(response.text['Name'], " has a password : ", response.text['HasPassword'])  # To print formatted JSON response
 #                try:
 #                    json_results = json.loads((response.text))
