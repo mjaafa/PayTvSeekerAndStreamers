@@ -40,7 +40,7 @@ def __boot__():
     logging.info(" # Booting The modules # ");
     logging.info(" * Booting Seeker module : ")
     __seeker__instance__ = seeker()
-    seeker.set_browser_visibilty(__seeker__instance__, True);
+    seeker.set_browser_visibilty(__seeker__instance__, False);
     logging.info("    |->  Booting  component seeker browser        : %s ",
                  ("Hidden", "Visible") [bool(seeker.get_browser_visibilty(__seeker__instance__)) == True] )
     if (None != seeker.init_config(__seeker__instance__)):

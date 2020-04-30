@@ -20,10 +20,10 @@ desired_capabilities['acceptInsecureCerts'] = True
 
 class zoomeye():
 
-    predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q=" \
+    predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q="
                                        #"app%3A%22CCcam%20DVR%20card%20sharing%20system%20information%22"
     use_rest_api                     = False;
-    visibility                       = True;
+    visibility                       = False;
 
     def __init__( self, __api_key__, __models__):
         __api_key = str(__api_key__).split(",")[2]
