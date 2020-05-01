@@ -61,6 +61,7 @@ class censys():
     def _getPotentialStreamers(self):
         line  = []
         logging.info("Check Potential Streamers :")
+
         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
         try :
             while None != next_page:
@@ -68,6 +69,7 @@ class censys():
                 logging.debug("Search info : %s ", results)
                 if(results.find("selenium.webdriver").isdigit):
                     logging.info(" reset cookies :");
+
 
                 for line in results[0].text.split('\n'):
                     logging.debug("Search info : %s ", line)
@@ -77,6 +79,8 @@ class censys():
                     self.driver.close()
                     return line
                 self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
+
+
         except :
             logging.error("error page ")
         return line
@@ -89,6 +93,7 @@ class censys():
         for self.url in __urls__:
             try:
                 if (None != self.url):
+
                     logging.debug("url : %s ", self.url)
                     self.display = Display(visible=self.visibility, size=(800, 600))
                     self.display.start()
@@ -105,6 +110,7 @@ class censys():
                         logging.debug(" page reached ");
                         time.sleep(20.4)
                         pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
+
                         self.driver.get(self.url)
                         cookies = pickle.load(open("cookies.pkl", "rb"))
                         for cookie in cookies:
