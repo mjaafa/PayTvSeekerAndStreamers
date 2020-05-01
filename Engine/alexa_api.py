@@ -75,16 +75,7 @@ class alexa_api():
                     self.driver.implicitly_wait(20)
                     logging.debug(" page reached ");
                     time.sleep(2.4)
-                    #software_names = "Firefox"
-                    #operating_systems = "LINUX"
-                    #user_agent_rotator = UserAgent(software_names=software_names,
-#                                                       operating_systems=operating_systems, limit=1000)
-                    #user_agent = user_agent_rotator.get_random_user_agent()
-                    #self.profile.set_preference("general.useragent.override", user_agent)
                     pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
-                    #cookies = self.driver.manage().getCookies();
-                    #self.driver.manage().getCookieNamed(cookies);
-                    #self.driver.manage().addCookie(cookies);
                     self.driver.get(self.url)
                     search = self.driver.find_element_by_xpath("//input[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
                     search.clear()
@@ -95,9 +86,6 @@ class alexa_api():
                             search.send_keys(domain_address)
                             auto_complete = self.driver.find_elements_by_xpath("//li[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
                             auto_complete[0].click()
-                            #                element_index = self.driver.find_elements_by_css_selector("div.SearchResult:nth-child(") + index_element + ")"
-                            #                logging.info(" >> element_index = %s ", element_index)
-                           #                results = self.driver.find_elements_by_css_selector(element_index);
                             cookies = pickle.load(open("cookies.pkl", "rb"))
                             for cookie in cookies:
                                 self.driver.add_cookie(cookie)
@@ -114,66 +102,3 @@ class alexa_api():
         except Exception as e:
             logging.debug(" error : %s", e)
 
-                # print(response.text['Name'], " has a password : ", response.text['HasPassword'])  # To print formatted JSON response
-#                try:
-#                    json_results = json.loads((response.text))
-#                except ValueError:  # includes simplejson.decoder.JSONDecodeError
-#                    logging.debug('Decoding JSON has failed')
-#                    continue;
-#                    pass;
-
-#        for distro in json_results:
-#            print("User =  ", distro['Name']);
-#            print("Has Password =  ", distro['HasPassword']);
-#
-#            if (result['port'] == 80):
-#                print("clear port ")
-#
-#            if (distro['HasPassword'] == False):
-#                if (result['port'] == 80):
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(60)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                elif (result['port'] == 443):
-#                    driver = webdriver.Firefox()
-#                    urld = 'https://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                else:
-#                    driver = webdriver.Firefox()
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-
-#            except requests.exceptions.HTTPError as errh:
-#                logging.error("Http Error:", errh)
-#            except requests.exceptions.ConnectionError as errc:
-#                logging.error("Error Connecting:", errc)
-#            except requests.exceptions.Timeout as errt:
-#                logging.error("Timeout Error:", errt)
-#            except requests.exceptions.RequestException as err:
-#                logging.error("OOps: Something Else", err)

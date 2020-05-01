@@ -61,30 +61,15 @@ class censys():
     def _getPotentialStreamers(self):
         line  = []
         logging.info("Check Potential Streamers :")
-        #   / html / body / div[1] / div[2] / div / div / div / div[5] / div / div[2] / div / div[25]
-        index_element = 1;
         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
         try :
             while None != next_page:
                 results = self.driver.find_elements_by_css_selector("#resultset");
-#                element_index = self.driver.find_elements_by_css_selector("div.SearchResult:nth-child(") + index_element + ")"
-#                logging.info(" >> element_index = %s ", element_index)
-#                results = self.driver.find_elements_by_css_selector(element_index);
                 logging.debug("Search info : %s ", results)
                 if(results.find("selenium.webdriver").isdigit):
                     logging.info(" reset cookies :");
-#                    os.remove("cookies.pkl")
-#                    pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
-#                    # cookies = self.driver.manage().getCookies();
-#                    # self.driver.manage().getCookieNamed(cookies);
-#                    # self.driver.manage().addCookie(cookies);
-#                    self.driver.get(self.url)
-#                    cookies = pickle.load(open("cookies.pkl", "rb"))
-#                    for cookie in cookies:
-#                        self.driver.add_cookie(cookie)
 
                 for line in results[0].text.split('\n'):
-                    #stripped_line = line.strip()
                     logging.debug("Search info : %s ", line)
 
                 next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
@@ -92,8 +77,6 @@ class censys():
                     self.driver.close()
                     return line
                 self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
-#                if (element_index == 25):
-#                    element_index = 1;
         except :
             logging.error("error page ")
         return line
@@ -106,9 +89,6 @@ class censys():
         for self.url in __urls__:
             try:
                 if (None != self.url):
-                    #response = requests.get(url, timeout=30, verify=False)  # To execute get request
-                    #logging.debug("http code ", response.status_code)  # To logging.error http response code
-                    #logging.debug(" response : %s", BeautifulSoup(response.content))  # To logging.error http response code
                     logging.debug("url : %s ", self.url)
                     self.display = Display(visible=self.visibility, size=(800, 600))
                     self.display.start()
@@ -119,24 +99,12 @@ class censys():
                     self.driver = webdriver.Firefox(firefox_profile=self.profile)
                     self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
                     self.desired_capabilities['acceptInsecureCerts'] = True
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
                     self.driver.set_window_size(1024, 768)
                     try :
                         self.driver.implicitly_wait(20)
                         logging.debug(" page reached ");
                         time.sleep(20.4)
-#                        software_names = "Firefox"
-#                        operating_systems = "LINUX"
-#                        user_agent_rotator = UserAgent(software_names=software_names,
-#                                                       operating_systems=operating_systems, limit=1000)
-#                        user_agent = user_agent_rotator.get_random_user_agent()
-#                        self.profile.set_preference("general.useragent.override", user_agent)
                         pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
-                        #cookies = self.driver.manage().getCookies();
-                        #self.driver.manage().getCookieNamed(cookies);
-                        #self.driver.manage().addCookie(cookies);
                         self.driver.get(self.url)
                         cookies = pickle.load(open("cookies.pkl", "rb"))
                         for cookie in cookies:
@@ -153,66 +121,3 @@ class censys():
             except Exception as e:
                 logging.debug(" error : %s", e)
 
-                # print(response.text['Name'], " has a password : ", response.text['HasPassword'])  # To print formatted JSON response
-#                try:
-#                    json_results = json.loads((response.text))
-#                except ValueError:  # includes simplejson.decoder.JSONDecodeError
-#                    logging.debug('Decoding JSON has failed')
-#                    continue;
-#                    pass;
-
-#        for distro in json_results:
-#            print("User =  ", distro['Name']);
-#            print("Has Password =  ", distro['HasPassword']);
-#
-#            if (result['port'] == 80):
-#                print("clear port ")
-#
-#            if (distro['HasPassword'] == False):
-#                if (result['port'] == 80):
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(60)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                elif (result['port'] == 443):
-#                    driver = webdriver.Firefox()
-#                    urld = 'https://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                else:
-#                    driver = webdriver.Firefox()
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-
-#            except requests.exceptions.HTTPError as errh:
-#                logging.error("Http Error:", errh)
-#            except requests.exceptions.ConnectionError as errc:
-#                logging.error("Error Connecting:", errc)
-#            except requests.exceptions.Timeout as errt:
-#                logging.error("Timeout Error:", errt)
-#            except requests.exceptions.RequestException as err:
-#                logging.error("OOps: Something Else", err)
