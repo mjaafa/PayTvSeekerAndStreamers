@@ -21,7 +21,6 @@ desired_capabilities['acceptInsecureCerts'] = True
 class zoomeye():
 
     predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q="
-                                       #"app%3A%22CCcam%20DVR%20card%20sharing%20system%20information%22"
     use_rest_api                     = False;
     visibility                       = False;
 
@@ -52,7 +51,6 @@ class zoomeye():
     def _getPotentialStreamers(self):
         line  = []
         logging.info("Check Potential Streamers :")
-        #   / html / body / div[1] / div[2] / div / div / div / div[5] / div / div[2] / div / div[25]
         next_page = self.driver.find_elements_by_css_selector(".ant-pagination-next")
         try :
             while None != next_page:
@@ -77,9 +75,6 @@ class zoomeye():
         for url in __urls__:
             try:
                 if (None != url):
-                    #response = requests.get(url, timeout=30, verify=False)  # To execute get request
-                    #logging.debug("http code ", response.status_code)  # To logging.error http response code
-                    #logging.debug(" response : %s", BeautifulSoup(response.content))  # To logging.error http response code
                     logging.debug("url : %s ", url)
                     self.display = Display(visible=self.visibility, size=(800, 600))
                     self.display.start()
@@ -90,9 +85,6 @@ class zoomeye():
                     self.driver = webdriver.Firefox(firefox_profile=self.profile)
                     self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
                     self.desired_capabilities['acceptInsecureCerts'] = True
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
                     self.driver.set_window_size(1024, 768)
                     try :
                         self.driver.implicitly_wait(60)
@@ -111,68 +103,3 @@ class zoomeye():
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
-                # print(response.text['Name'], " has a password : ", response.text['HasPassword'])  # To print formatted JSON response
-#                try:
-#                    json_results = json.loads((response.text))
-#                except ValueError:  # includes simplejson.decoder.JSONDecodeError
-#                    logging.debug('Decoding JSON has failed')
-#                    continue;
-#                    pass;
-
-#        for distro in json_results:
-#            print("User =  ", distro['Name']);
-#            print("Has Password =  ", distro['HasPassword']);
-#
-#            if (result['port'] == 80):
-#                print("clear port ")
-#
-#            if (distro['HasPassword'] == False):
-#                if (result['port'] == 80):
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(60)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                elif (result['port'] == 443):
-#                    driver = webdriver.Firefox()
-#                    urld = 'https://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-#                else:
-#                    driver = webdriver.Firefox()
-#                    urld = 'http://{}'.format(result['ip_str']) + ':' + str(result['port'])
-#                    print("URL ", urld)
-#                    driver.set_window_size(1024, 768)
-#                    try:
-#                        driver.implicitly_wait(30)
-#                        driver.get(urld)
-#                    except:
-#                        print(" page unreachable ...");
-#                        continue;
-#                        pass;
-
-#            except requests.exceptions.HTTPError as errh:
-#                logging.error("Http Error:", errh)
-#            except requests.exceptions.ConnectionError as errc:
-#                logging.error("Error Connecting:", errc)
-#            except requests.exceptions.Timeout as errt:
-#                logging.error("Timeout Error:", errt)
-#            except requests.exceptions.RequestException as err:
-#                logging.error("OOps: Something Else", err)
-
-

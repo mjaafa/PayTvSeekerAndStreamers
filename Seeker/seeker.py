@@ -31,24 +31,10 @@ from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
 from Engine.alexa_api import alexa_api
 
-
-
 class seeker():
-    # Rocket simulates a rocket ship for a game
-    #  or a physics simulation.
     visibility = False
 
     def __init__(self):
-        # init webdriver
-        #self.display = Display(visible=self.visibility, size=(800, 600))
-        #self.display.start()
-
-        # Configuration browser
-        #self.profile = webdriver.FirefoxProfile()
-        #self.profile.accept_untrusted_certs = True
-        #self.driver = webdriver.Firefox(firefox_profile=self.profile)
-        #self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
-        #self.desired_capabilities['acceptInsecureCerts'] = True
         logging.info(" init ")
 
     def set_browser_visibilty(self, __visible__):
@@ -64,7 +50,6 @@ class seeker():
             logging.info("Torrent ::", torrentFiles.text);
 
     def __init_storing_search_keys(self):
-        # remote encrypt / decrypt.
         self.cryptoCore = crypto('https://localhost/','127.0.0.1', 443)
         logging.debug("cryptoCore : %s ", self.cryptoCore);
         if ( None != crypto.crypto_fetchServerToken(self.cryptoCore)):
@@ -126,7 +111,6 @@ class seeker():
             return self;
 
     def _show_reults(self, results):
-        #        results = self.api.search()
         for result in results:
             logging.debug("url %s ", result)
             # logging.debug("results : %s ", result['data'])
@@ -146,9 +130,7 @@ class seeker():
                 pass;
 
     def search(self):
-        #engine init :: from remote :::::
         logging.info(" >> api key :: %s ", crypto.crypto_getMiscDataApiKey(self.cryptoCore))
-        #api_key = crypto.crypto_decrypt(self.cryptoCore,crypto.crypto_getMiscDataApiKey(self.cryptoCore))
         api_key = crypto.crypto_decrypt(self.cryptoCore,
                                         self.searchKeyDatabase.getApiKey(self.__database_name__,
                                         crypto.crypto_getremoteHashIndex(self.cryptoCore)))
@@ -180,7 +162,6 @@ class seeker():
 
         except :
             logging.info(" error censys api ")
-
 
         self.zoomeye_api = zoomeye(api_key,
                                  models.decode("utf-8"))
@@ -214,48 +195,3 @@ class seeker():
                 logging.info(" error alexa api ");
         except :
             logging.info(" error shodan api ");
-
-#        self._show_reults(results);
-
-        #ciphering_keys = self.searchKeyDatabase.getKeys(self.__database_name__)
-        #logging.info(" >> ciphering keys %s ", ciphering_keys)
-#driver_emby = webdriver.Firefox()
-#
-## Loop through the matches and print each IP
-#for service in result['matches']:
-#                print "**********************************"
-#                print service['ip_str'];
-#                print service['location'];
-#                print service['port']
-#                driver.implicitly_wait(10)
-#                #if "186.229.29.210" in str(service['ip_str']):
-#                #    continue;
-#                if "443" in str(service['port']):
-#                    url = "https://"+str(service['ip_str'])+":"+str(service['port'])+"/emby/users/public?format=json";
-#                    secured=True;
-#                else:
-#                    url = "http://"+str(service['ip_str'])+":"+str(service['port'])+"/emby/users/public?format=json";
-#                    secured=False;
-#                print url
-#               # print ("URL built is :", url.split(" ")[1])
-#                try:
-#                    driver.get(url);
-#                except:
-#                    continue;
-#                detectingWeakUser();
-#                torrentCheck="https://iknowwhatyoudownload.com/en/peer/?ip="+str(service['ip_str']);
-#                driver.get(torrentCheck);
-#                checkIfTargetusesTorrent();
-#                if(Weak_user==True):
-#                    if (True == secured):
-#                        urld = "https://"+str(service['ip_str'])+":"+str(service['port']);
-#                    else:
-#                        urld = "http://"+str(service['ip_str'])+":"+str(service['port']);
-#                    #driver_emby.set_window_size(1024, 768)
-#                    #driver_emby.get(urld)
-#                    Weak_user=False;
-#                    print("URL ", urld)
-#                #sleep(60);
-#                #
-#
-#driver.close();
