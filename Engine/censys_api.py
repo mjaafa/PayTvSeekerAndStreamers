@@ -30,6 +30,7 @@ class censys():
     predefined_filter_80_line        = "80.http.get.status_line%3A200"
     use_rest_api                     = False;
     visibility                       = False;
+    expolit_bug                      = False;
 
     def __init__( self, __api_key__, __models__):
         __api_key = str(__api_key__).split(",")[1]
@@ -104,11 +105,13 @@ class censys():
                         self.driver.implicitly_wait(20)
                         logging.debug(" page reached ");
                         time.sleep(20.4)
-                        pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
+                        if (True == self.expolit_bug):
+                            pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
                         self.driver.get(self.url)
-                        cookies = pickle.load(open("cookies.pkl", "rb"))
-                        for cookie in cookies:
-                            self.driver.add_cookie(cookie)
+                        if (True == self.expolit_bug):
+                            cookies = pickle.load(open("cookies.pkl", "rb"))
+                            for cookie in cookies:
+                                self.driver.add_cookie(cookie)
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
                         time.sleep(2.4)
