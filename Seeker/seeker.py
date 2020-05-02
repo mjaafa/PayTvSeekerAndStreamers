@@ -103,6 +103,13 @@ class seeker():
 
         return self
 
+    def __init_storing_streamers(self):
+        __remote_client   = crypto.crypto_getClient(self.cryptoCore)
+        self.__database_name__ = __remote_client + "_STB_streamer.db"
+
+        self.streamingDatabase = database(self.__database_name__,
+                                          " STREAMING_REPORT ( IP_ADDRESS TEXT, SNAPSHOT BLOB NULL, IPTV_LIST TEXT, TOKEN_HASH TEXT, STREAMER_INFO TEXT, CCCAM_SERVER BLOB NULL, PRIMARY KEY (IP_ADDRESS))")
+
     def init_config(self):
         if (None == self.__init_storing_search_keys()):
             logging.error(" Error configuration cannot be completed ")
@@ -146,6 +153,7 @@ class seeker():
         logging.info(" >> decrypted api key :: %s ", api_key.decode("utf-8"))
         logging.info(" >> decrypted models key :: %s ", models.decode("utf-8"))
 
+        self.__init_storing_streamers()
 
         self.censys_api = censys(api_key,
                                  models.decode("utf-8"))
@@ -160,7 +168,6 @@ class seeker():
                 logging.info("[SEEKER] %s", self.show_results)
             except :
                 logging.info(" error alexa api ");
-
         except :
             logging.info(" error censys api ")
 
@@ -177,7 +184,6 @@ class seeker():
                 logging.info("[SEEKER] %s", self.show_results)
             except :
                 logging.info(" error alexa api ");
-
         except :
             logging.info(" error zoomeye api ")
 
