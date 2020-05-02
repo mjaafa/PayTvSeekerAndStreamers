@@ -31,7 +31,6 @@ from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
 from Engine.alexa_api import alexa_api
 
-
 class seeker():
     visibility = False
 

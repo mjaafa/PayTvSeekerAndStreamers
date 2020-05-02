@@ -67,9 +67,6 @@ class alexa_api():
                 self.driver = webdriver.Firefox(firefox_profile=self.profile)
                 self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
                 self.desired_capabilities['acceptInsecureCerts'] = True
-#                    driver = webdriver.Firefox(capabilities=desired_capabilities)
-#                    driver.accept_untrusted_certs = True
-#                    driver.acceptSslCerts = True
                 self.driver.set_window_size(1024, 768)
                 try :
                     self.driver.implicitly_wait(20)
@@ -86,6 +83,7 @@ class alexa_api():
                             search.send_keys(domain_address)
                             auto_complete = self.driver.find_elements_by_xpath("//li[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
                             auto_complete[0].click()
+
                             cookies = pickle.load(open("cookies.pkl", "rb"))
                             for cookie in cookies:
                                 self.driver.add_cookie(cookie)
@@ -101,4 +99,5 @@ class alexa_api():
 
         except Exception as e:
             logging.debug(" error : %s", e)
+
 
