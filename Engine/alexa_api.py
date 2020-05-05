@@ -78,7 +78,7 @@ class alexa_api():
                     search.clear()
                     for result in results:
                         try :
-                            ip = ipaddress.ip_address(sys.argv[1])
+                            ip = ipaddress.ip_address(result)
                             domain_address = reversename.from_address(ip)
                             search.send_keys(domain_address)
                             auto_complete = self.driver.find_elements_by_xpath("//li[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
