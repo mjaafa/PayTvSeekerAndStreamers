@@ -12,17 +12,17 @@ from binascii import unhexlify
 from Colorer import colorer
 
 class remote_credentials_data:
-    CredTag         = 15
-    Name            = 17
+    CredTag         = 14
+    Name            = 16
     EncryptionTag   = 18
-    Version         = 20
+    Version         = 19
     Method          = 29
-    Password        = 22
+    Password        = 21
     backend         = 24
-    Algorithm       = 23
-    token           = 25
-    keywords        = 26
-    apikey          = 27
+    Algorithm       = 22
+    token           = 23
+    keywords        = 25
+    apikey          = 26
 
 class crypto():
     generateKeys = True;
