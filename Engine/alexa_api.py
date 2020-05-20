@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 ## main program emerald hack ###
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -16,7 +18,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
 import pickle
 import os
-desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+desired_capabilities = DesiredCapabilities.CHROME.copy()
 desired_capabilities['acceptInsecureCerts'] = True
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
@@ -25,7 +27,7 @@ import ipaddress
 import sys
 
 class alexa_api():
-    predefined_syntax_basic_url      = "https://www.alexa.com/siteinfo"
+    predefined_syntax_basic_url      = "https://www.alexa.com/siteinfo/"
     use_rest_api                     = False;
     visibility                       = False;
 
@@ -33,8 +35,10 @@ class alexa_api():
         self.api_name = __api_name__
         logging.info(" api key")
 
-    def _build_urls(self):
-         return self.predefined_syntax_basic_url
+    def _build_urls(self, __url__):
+         ip_address = __url__.split('//')[1].split(':')[0]
+         reversed_dns = socket.gethostbyaddr(ip_address)
+         return self.predefined_syntax_basic_url+'/'+reversed_dns[0]
 
     def _getPotentialStreamers(self, results):
         search_traffic  = []
@@ -48,56 +52,66 @@ class alexa_api():
 
     def search(self, results):
         page_results = []
-        urls = self._build_urls()
         if(self.api_name != "censys"):
             return
+        self.profile = webdriver.ChromeOptions()
+        self.profile.add_argument('--ignore-certificate-errors')
+        self.driver = webdriver.Chrome(chrome_options=self.profile)
+        self.desired_capabilities = DesiredCapabilities.CHROME.copy()
+        self.desired_capabilities['acceptInsecureCerts'] = True
+        self.driver.set_window_size(1024, 768)
+        self.display = Display(visible=self.visibility, size=(800, 600))
+        self.display.start()
 
-        try:
-            if (None != self.url):
-                #response = requests.get(url, timeout=30, verify=False)  # To execute get request
-                #logging.debug("http code ", response.status_code)  # To logging.error http response code
-                #logging.debug(" response : %s", BeautifulSoup(response.content))  # To logging.error http response code
-                logging.debug("url : %s ", self.url)
-                self.display = Display(visible=self.visibility, size=(800, 600))
-                self.display.start()
+        for self._url_ in results:
+            try:
+                if (None != self._url_):
+                    logging.debug("url : %s ", self._url_)
 
-                # Configuration browser
-                self.profile = webdriver.FirefoxProfile()
-                self.profile.accept_untrusted_certs = True
-                self.driver = webdriver.Firefox(firefox_profile=self.profile)
-                self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
-                self.desired_capabilities['acceptInsecureCerts'] = True
-                self.driver.set_window_size(1024, 768)
-                try :
-                    self.driver.implicitly_wait(20)
-                    logging.debug(" page reached ");
-                    time.sleep(2.4)
-                    pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
-                    self.driver.get(self.url)
-                    search = self.driver.find_element_by_xpath("//input[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
-                    search.clear()
-                    for result in results:
-                        try :
-                            ip = ipaddress.ip_address(result)
-                            domain_address = reversename.from_address(ip)
-                            search.send_keys(domain_address)
-                            auto_complete = self.driver.find_elements_by_xpath("//li[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
-                            auto_complete[0].click()
+                    # Configuration browser
+                    try :
+                        self.driver.implicitly_wait(20)
+                        logging.debug(" page reached ");
+                        time.sleep(2.4)
+                        #pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
+                        url = self._build_urls(self._url_)
+                        self.driver.get(url)
+                        try:
+                            countryRank = self.driver.find_element_by_id("CountryRank")
+                            logging.info("Country : %s ", str(countryRank.text).replace('\n', ':'))
+                        except Exception as err:
+                            logging.error(" option not caught error %s  ", str(err));
+        #                    self.driver.quit()
 
-                            cookies = pickle.load(open("cookies.pkl", "rb"))
-                            for cookie in cookies:
-                                self.driver.add_cookie(cookie)
-                                page_results = self._getPotentialStreamers()
-                                logging.info("Printed immediately.")
-                                time.sleep(2.4)
-                        except:
-                            logging.info('%s is a correct IP%s address.', (ip, ip.version))
-                except:
-                    print(" page unreachable ...");
-                    self.driver.close()
-                    pass;
+                        try:
+                            WebElement;  totalVisitor = self.driver.find_element_by_id("donutChart");
+                            logging.info("Total Element : %s  ", totalVisitor.text)
+                        except Exception as err:
+                            logging.error(" option not caught error %s  ", str(err));
+#                            self.driver.quit()
 
-        except Exception as e:
-            logging.debug(" error : %s", e)
+                        #search.clear()
+#                        for result in results:
+#                            try :
+#                                ip = ipaddress.ip_address(result)
+#                                domain_address = reversename.from_address(ip)
+#                                search.send_keys(domain_address)
+#                                auto_complete = self.driver.find_elements_by_css_selector("//li[starts-with(@class, '.InputAutocomplete-singlesite-0')]")
+#                                auto_complete[0].click()
+#
+#                                cookies = pickle.load(open("cookies.pkl", "rb"))
+#                                for cookie in cookies:
+#                                    self.driver.add_cookie(cookie)
+#                                    page_results = self._getPotentialStreamers()
+#                                    logging.info("Printed immediately.")
+#                                    time.sleep(2.4)
+#                            except:
+#                                logging.info('%s is a correct IP%s address.', (ip, ip.version))
+                    except:
+                        print(" page unreachable ...");
+ #                       self.driver.quit()
+                        pass;
 
-
+            except Exception as e:
+                logging.debug(" error : %s", e)
+                self.driver.quit()

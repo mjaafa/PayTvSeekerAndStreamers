@@ -50,7 +50,8 @@ class seeker():
             logging.info("Torrent ::", torrentFiles.text);
 
     def __init_storing_search_keys(self):
-        self.cryptoCore = crypto('https://45.15.24.175/','45.15.24.175', 8443)
+        self.cryptoCore = crypto('https://antikythera-techs.xyz/','antikythera-techs.xyz', 8443)
+
         logging.debug("cryptoCore : %s ", self.cryptoCore);
         if ( None != crypto.crypto_fetchServerToken(self.cryptoCore)):
             logging.info("    |->  Booting  component crypto remote server  : Done ")
@@ -107,7 +108,8 @@ class seeker():
         self.__database_name__ = __remote_client + "_STB_streamer.db"
 
         self.streamingDatabase = database(self.__database_name__,
-                                          " STREAMING_REPORT ( IP_ADDRESS TEXT, SNAPSHOT BLOB NULL, IPTV_LIST TEXT, TOKEN_HASH TEXT, STREAMER_INFO TEXT, CCCAM_SERVER BLOB NULL, PRIMARY KEY (IP_ADDRESS))")
+                                          " STREAMING_REPORT (IP_ADDRESS TEXT, SNAPSHOT BLOB NULL, IPTV_LIST TEXT, TOKEN_HASH TEXT, STREAMER_INFO TEXT, CCCAM_SERVER BLOB NULL, PRIMARY KEY (IP_ADDRESS))")
+
 
     def init_config(self):
         if (None == self.__init_storing_search_keys()):
@@ -132,7 +134,8 @@ class seeker():
                 driver.get(result)
             except:
                 logging.debug(" page unreachable ...");
-                driver.close()
+                driver.quit()
+                #display.close()
                 continue;
                 pass;
 
@@ -161,13 +164,11 @@ class seeker():
             results = self.censys_api.search()
             self._show_reults(results);
             try:
-                self.alexa_api_search = alexa_api("censys")
-                results = self.alexa_api_search.search()
-                self._show_reults(results);
+                results_alexa = self.alexa_api_search.search(results)
+                self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
             except :
                 logging.info(" error alexa api ");
-
         except :
             logging.info(" error censys api ")
 
@@ -178,13 +179,11 @@ class seeker():
             results = self.zoomeye_api.search()
             self._show_reults(results);
             try:
-                self.alexa_api_search = alexa_api(None)
-                results = self.alexa_api_search.search()
-                self._show_reults(results);
+                results_alexa = self.alexa_api_search.search(results)
+                self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
             except :
                 logging.info(" error alexa api ");
-
         except :
             logging.info(" error zoomeye api ")
 
@@ -192,12 +191,12 @@ class seeker():
                                      models.decode("utf-8"))
 
         try:
-            self.alexa_api_search = alexa_api(None)
             results = self.shodan_api.search()
-            self._show_reults(results);
+            #self._show_reults(results);
             try:
-                results = self.alexa_api_search.search()
-                self._show_reults(results);
+                self.alexa_api_search = alexa_api("censys")
+                results_alexa = self.alexa_api_search.search(results)
+                self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
             except :
                 logging.info(" error alexa api ");

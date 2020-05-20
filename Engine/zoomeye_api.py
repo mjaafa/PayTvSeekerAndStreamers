@@ -80,10 +80,10 @@ class zoomeye():
                     self.display.start()
 
                     # Configuration browser
-                    self.profile = webdriver.FirefoxProfile()
+                    self.profile = webdriver.ChromeProfile()
                     self.profile.accept_untrusted_certs = True
-                    self.driver = webdriver.Firefox(firefox_profile=self.profile)
-                    self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+                    self.driver = webdriver.Chrome(chrome_profile=self.profile)
+                    self.desired_capabilities = DesiredCapabilities.CHROME.copy()
                     self.desired_capabilities['acceptInsecureCerts'] = True
                     self.driver.set_window_size(1024, 768)
                     try :
@@ -103,3 +103,6 @@ class zoomeye():
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
+                self.driver.quit()
+                self.display.close()
+
