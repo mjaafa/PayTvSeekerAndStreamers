@@ -16,10 +16,11 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
 import pickle
 import os
-desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+desired_capabilities = DesiredCapabilities.CHROME.copy()
 desired_capabilities['acceptInsecureCerts'] = True
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
+import ipaddress
 
 class censys():
 
@@ -30,7 +31,8 @@ class censys():
     predefined_filter_80_line        = "80.http.get.status_line%3A200"
     use_rest_api                     = False;
     visibility                       = False;
-    expolit_bug                      = False;
+    expolit_bug                      = True;
+    should_activates_cookies         = True
 
     def __init__( self, __api_key__, __models__):
         __api_key = str(__api_key__).split(",")[1]
@@ -60,27 +62,42 @@ class censys():
         return url_built
 
     def _getPotentialStreamers(self):
-        line  = []
+        clients  = []
         logging.info("Check Potential Streamers :")
         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+        index = 0
         try :
             while None != next_page:
                 results = self.driver.find_elements_by_css_selector("#resultset");
-                logging.debug("Search info : %s ", results)
-                if(results.find("selenium.webdriver").isdigit):
-                    logging.info(" reset cookies :");
-
+                logging.debug("Search info : %s ", results[0].text)
+#                try:
+#                    if(results.find("selenium.webdriver").isdigit):
+#                        logging.info(" reset cookies :");
+#                        self.should_activates_cookies = True
+#                except:
+#                    logging.error("Error in filtering ...")
                 for line in results[0].text.split('\n'):
-                    logging.debug("Search info : %s ", line)
-
-                next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
-                if None == next_page:
-                    self.driver.close()
-                    return line
-                self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
+                    #logging.debug("Search info : %s ", line.split()[0])
+                    try:
+                        ip = ipaddress.ip_address(line.split()[0]);
+                        clients.append(ip);
+                        next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+                        if None == next_page:
+                            #self.driver.close()
+                            self.driver.quit()
+                            self.display.close()
+                            return clients
+                        self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
+                    except:
+                        logging.debug(" not ip address %s ", line.split()[0])
+                        continue;
+                        pass;
         except :
             logging.error("error page ")
-        return line
+            self.driver.quit()
+            self.display.close()
+            return clients
+        return clients
 
     def search(self):
         __urls__ = self._build_urls()
@@ -95,15 +112,15 @@ class censys():
                     self.display.start()
 
                     # Configuration browser
-                    self.profile = webdriver.FirefoxProfile()
+                    self.profile = webdriver.ChromeProfile()
                     self.profile.accept_untrusted_certs = True
-                    self.driver = webdriver.Firefox(firefox_profile=self.profile)
-                    self.desired_capabilities = DesiredCapabilities.FIREFOX.copy()
+                    self.driver = webdriver.Chrome(chrome_profile=self.profile)
+                    self.desired_capabilities = DesiredCapabilities.CHROME.copy()
                     self.desired_capabilities['acceptInsecureCerts'] = True
                     self.driver.set_window_size(1024, 768)
                     try :
                         self.driver.implicitly_wait(20)
-                        logging.debug(" page reached ");
+                        logging.debug(" page reached ...");
                         time.sleep(20.4)
                         if (True == self.expolit_bug):
                             pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
@@ -115,12 +132,20 @@ class censys():
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
                         time.sleep(2.4)
+                        self.driver.close()
+                        self.display.close()
 
                     except:
                         print(" page unreachable ...");
                         self.driver.close()
+                        self.display.close()
                         continue;
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
+                self.driver.close()
+                self.display.close()
+                os.remove("cookies.pkl")
+
+        return page_results
 
