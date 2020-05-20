@@ -105,3 +105,4 @@ class zoomeye():
                 logging.debug(" error : %s", e)
                 self.driver.quit()
                 self.display.close()
+

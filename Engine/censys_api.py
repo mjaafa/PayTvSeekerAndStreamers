@@ -64,6 +64,7 @@ class censys():
     def _getPotentialStreamers(self):
         clients  = []
         logging.info("Check Potential Streamers :")
+
         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
         index = 0
         try :
@@ -92,6 +93,7 @@ class censys():
                         logging.debug(" not ip address %s ", line.split()[0])
                         continue;
                         pass;
+
         except :
             logging.error("error page ")
             self.driver.quit()
@@ -124,6 +126,7 @@ class censys():
                         time.sleep(20.4)
                         if (True == self.expolit_bug):
                             pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
+
                         self.driver.get(self.url)
                         if (True == self.expolit_bug):
                             cookies = pickle.load(open("cookies.pkl", "rb"))
@@ -134,6 +137,7 @@ class censys():
                         time.sleep(2.4)
                         self.driver.close()
                         self.display.close()
+
 
                     except:
                         print(" page unreachable ...");
@@ -146,6 +150,3 @@ class censys():
                 self.driver.close()
                 self.display.close()
                 os.remove("cookies.pkl")
-
-        return page_results
-

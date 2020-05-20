@@ -115,5 +115,3 @@ class alexa_api():
             except Exception as e:
                 logging.debug(" error : %s", e)
                 self.driver.quit()
-
-

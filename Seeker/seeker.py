@@ -51,6 +51,7 @@ class seeker():
 
     def __init_storing_search_keys(self):
         self.cryptoCore = crypto('https://antikythera-techs.xyz/','antikythera-techs.xyz', 8443)
+
         logging.debug("cryptoCore : %s ", self.cryptoCore);
         if ( None != crypto.crypto_fetchServerToken(self.cryptoCore)):
             logging.info("    |->  Booting  component crypto remote server  : Done ")
@@ -108,6 +109,7 @@ class seeker():
 
         self.streamingDatabase = database(self.__database_name__,
                                           " STREAMING_REPORT (IP_ADDRESS TEXT, SNAPSHOT BLOB NULL, IPTV_LIST TEXT, TOKEN_HASH TEXT, STREAMER_INFO TEXT, CCCAM_SERVER BLOB NULL, PRIMARY KEY (IP_ADDRESS))")
+
 
     def init_config(self):
         if (None == self.__init_storing_search_keys()):
