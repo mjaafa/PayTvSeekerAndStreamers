@@ -12,17 +12,17 @@ from binascii import unhexlify
 from Colorer import colorer
 
 class remote_credentials_data:
-    CredTag         = 15
-    Name            = 17
-    EncryptionTag   = 18
-    Version         = 20
-    Method          = 29
-    Password        = 22
-    backend         = 24
-    Algorithm       = 23
-    token           = 25
-    keywords        = 26
-    apikey          = 27
+    CredTag         = 11
+    Name            = 13
+    EncryptionTag   = 14
+    Version         = 16
+    Method          = 17
+    Password        = 18
+    backend         = 21
+    Algorithm       = 19
+    token           = 20
+    keywords        = 22
+    apikey          = 23
 
 class crypto():
     generateKeys = True;
@@ -49,7 +49,7 @@ class crypto():
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=server_cert)
         context.load_cert_chain(certfile=client_cert, keyfile=client_key)
         context.verify_mode = ssl.CERT_REQUIRED
-        context.check_hostname = False
+        context.check_hostname = True
 
         # CREATE SOCKET
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -175,7 +175,7 @@ class crypto():
     def crypto_getMiscDataModels(self):
         logging.debug("[Crypto] Remote component keyword list =  %s ",
                       str(self.credential[remote_credentials_data.keywords].split(':')[1]).strip('"').strip("'"))
-        __list = str(self.credential[remote_credentials_data.keywords].split(':')[1]).strip('"').strip("'")
+        __list = str(self.credential[remote_credentials_data.keywords].split(':')[1]).strip('"').split('"')[0]
         return self.crypto_encrypt(__list.encode())
 
     def crypto_getMiscDataApiKey(self):
