@@ -2,7 +2,6 @@ import shodan
 import logging
 import Colorer
 
-
 class shodan_api():
     def __init__( self, __api_key__, __models__):
         logging.info(" shodan api init")
@@ -15,25 +14,28 @@ class shodan_api():
         logging.info(" >> decrypted models key :: %s ", __models__)
 
     def search(self):
-        logging.info("search the keywords via shodan API")
+        logging.info("search the keywords via shodan API %s", self.api.keywords)
         urld = []
-        for __keyword__ in self.api.keywords.split(','):
-            logging.info(" models search = %s", __keyword__)
-            try:
-                results = self.api.search(__keyword__)
-                for result in results['matches']:
-                    logging.debug("results : %s ", result['data'])
+        try:
+            for __keyword__ in self.api.keywords.split(','):
+                logging.info(" models search = %s", __keyword__)
+                try:
+                    results = self.api.search(__keyword__)
+                    #logging.info(" matches : ", results['matches'])
 
-                    if (result['port'] == 80):
-                        urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                        logging.debug("URL %s ", urld)
-                    elif (result['port'] == 443):
-                        urld.append('https://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                        logging.debug("URL %s", urld)
-                    else:
-                        urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                        logging.debug("URL %s", urld)
-            except:
-                logging.error(" Error : cannot walkthrough the list")
+                    for result in results['matches']:
+                        logging.debug("results : %s ", result['ip_str'])
 
-            return urld;
+                        if (result['port'] == 80):
+                            urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
+                        elif (result['port'] == 443):
+                            urld.append('https://{}'.format(result['ip_str']) + ':' + str(result['port']))
+                        else:
+                            urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
+                except:
+                    logging.error(" Error : cannot walkthrough the list")
+        except:
+            logging.error(" Error : cannot walkthrough the list")
+
+        logging.debug("URL %s", urld)
+        return urld;
