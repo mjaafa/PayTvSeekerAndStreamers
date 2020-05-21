@@ -3,26 +3,23 @@ import json
 import logging
 import Colorer
 from bs4 import BeautifulSoup
-## main program emerald hack ###
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import socket
-#from goto import goto, label
 import time
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
 
-desired_capabilities = DesiredCapabilities.FIREFOX.copy()
-desired_capabilities['acceptInsecureCerts'] = True
 
 class zoomeye():
 
     predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q="
     use_rest_api                     = False;
     visibility                       = False;
+    fineTune                         = 15;
 
 
     def __init__( self, __api_key__, __models__):
@@ -72,37 +69,39 @@ class zoomeye():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
+        self.profile = webdriver.ChromeOptions()
+        self.profile.add_argument('--ignore-certificate-errors')
+        self.profile.add_argument('--headless')
+        self.driver = webdriver.Chrome(chrome_options=self.profile)
+        if (self.visibility):
+           self.display = Display(visible=self.visibility, size=(800, 600))
+           self.display.start()
+        else:
+            self.driver.set_window_size(0,0)
+
         for url in __urls__:
             try:
                 if (None != url):
                     logging.debug("url : %s ", url)
-                    self.display = Display(visible=self.visibility, size=(800, 600))
-                    self.display.start()
-
                     # Configuration browser
-                    self.profile = webdriver.ChromeProfile()
-                    self.profile.accept_untrusted_certs = True
-                    self.driver = webdriver.Chrome(chrome_profile=self.profile)
-                    self.desired_capabilities = DesiredCapabilities.CHROME.copy()
-                    self.desired_capabilities['acceptInsecureCerts'] = True
-                    self.driver.set_window_size(1024, 768)
                     try :
-                        self.driver.implicitly_wait(60)
+                        self.driver.implicitly_wait(self.fineTune)
                         logging.debug(" page reached ");
-                        time.sleep(20.4)
+                        #time.sleep(2)
                         cookies = self.driver.manage().getCookies();
                         self.driver.manage().getCookieNamed(cookies);
                         self.driver.manage().addCookie(cookies);
                         self.driver.get(url)
                         page_results = self._getPotentialStreamers()
                         print("Printed immediately.")
-                        time.sleep(31.4)
+                        #time.sleep(31.4)
                     except:
                         print(" page unreachable ...");
                         continue;
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
-                self.driver.quit()
-                self.display.close()
+                self.driver.close()
+                if (self.visibility):
+                    self.display.close()
 

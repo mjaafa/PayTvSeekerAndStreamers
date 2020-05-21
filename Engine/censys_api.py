@@ -3,21 +3,18 @@ import json
 import logging
 import Colorer
 from bs4 import BeautifulSoup
-## main program emerald hack ###
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import socket
-#from goto import goto, label
 import time
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
 import pickle
 import os
-desired_capabilities = DesiredCapabilities.CHROME.copy()
-desired_capabilities['acceptInsecureCerts'] = True
+#trick n' tweak the browser
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
 import ipaddress
@@ -32,7 +29,8 @@ class censys():
     use_rest_api                     = False;
     visibility                       = False;
     expolit_bug                      = True;
-    should_activates_cookies         = True
+    should_activates_cookies         = True;
+    fineTune                         = 10;
 
     def __init__( self, __api_key__, __models__):
         __api_key = str(__api_key__).split(",")[1]
@@ -71,82 +69,94 @@ class censys():
             while None != next_page:
                 results = self.driver.find_elements_by_css_selector("#resultset");
                 logging.debug("Search info : %s ", results[0].text)
-#                try:
-#                    if(results.find("selenium.webdriver").isdigit):
-#                        logging.info(" reset cookies :");
-#                        self.should_activates_cookies = True
-#                except:
-#                    logging.error("Error in filtering ...")
                 for line in results[0].text.split('\n'):
-                    #logging.debug("Search info : %s ", line.split()[0])
                     try:
-                        ip = ipaddress.ip_address(line.split()[0]);
+                        __ip__ = line.split()[0]
+                        ip = ipaddress.ip_address(__ip__);
                         clients.append(ip);
                         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+
                         if None == next_page:
-                            #self.driver.close()
-                            self.driver.quit()
-                            self.display.close()
-                            return clients
+                            self.driver.close()
+
+                            if (self.visibility):
+                                self.display.close()
+                        return clients
+
                         self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
                     except:
-                        logging.debug(" not ip address %s ", line.split()[0])
+                        logging.debug(" not ip address %s ", __ip__)
                         continue;
                         pass;
 
         except :
             logging.error("error page ")
             self.driver.quit()
-            self.display.close()
+            if (self.visibility):
+                self.display.close()
             return clients
+
         return clients
 
     def search(self):
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
+        self.desired_capabilities = DesiredCapabilities.CHROME.copy()
+        self.desired_capabilities['acceptInsecureCerts'] = True
+        self.profile = webdriver.ChromeOptions()
+        self.profile.add_argument('--ignore-certificate-errors')
+        self.profile.add_argument('headless')
+        self.driver = webdriver.Chrome(chrome_options=self.profile)
+        if (self.visibility):
+            self.display = Display(visible=self.visibility, size=(800, 600))
+            self.display.start()
+        else:
+            self.driver.set_window_size(0,0)
 
         for self.url in __urls__:
             try:
                 if (None != self.url):
                     logging.debug("url : %s ", self.url)
-                    self.display = Display(visible=self.visibility, size=(800, 600))
-                    self.display.start()
 
                     # Configuration browser
-                    self.profile = webdriver.ChromeProfile()
-                    self.profile.accept_untrusted_certs = True
-                    self.driver = webdriver.Chrome(chrome_profile=self.profile)
-                    self.desired_capabilities = DesiredCapabilities.CHROME.copy()
-                    self.desired_capabilities['acceptInsecureCerts'] = True
-                    self.driver.set_window_size(1024, 768)
                     try :
-                        self.driver.implicitly_wait(20)
+                        self.driver.implicitly_wait(self.fineTune)
                         logging.debug(" page reached ...");
                         time.sleep(20.4)
                         if (True == self.expolit_bug):
                             pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
 
+                        logging.debug(" get url !: %s", self.url)
                         self.driver.get(self.url)
                         if (True == self.expolit_bug):
                             cookies = pickle.load(open("cookies.pkl", "rb"))
                             for cookie in cookies:
                                 self.driver.add_cookie(cookie)
                         page_results = self._getPotentialStreamers()
+
                         print("Printed immediately.")
+
                         time.sleep(2.4)
                         self.driver.close()
-                        self.display.close()
+
+                        if (self.visibility):
+                            self.display.close()
 
 
                     except:
                         print(" page unreachable ...");
                         self.driver.close()
-                        self.display.close()
+                        if (True == self.visibility):
+                            self.display.close()
                         continue;
                         pass;
             except Exception as e:
                 logging.debug(" error : %s", e)
                 self.driver.close()
-                self.display.close()
-                os.remove("cookies.pkl")
+                if (self.visibility):
+                    self.display.close()
+                if(self.expolit_bug):
+                    os.remove("cookies.pkl")
+
+        return page_results

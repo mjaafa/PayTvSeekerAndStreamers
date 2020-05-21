@@ -56,6 +56,27 @@ class database():
             cur.close()
             return None;
 
+    def database_insert_element(self,__database_name__,  __primary_key__, __key__, __value__):
+        logging.debug("insert element : (%s) from primary key : %s in database (%s)", __key__, __primary_key__, __database_name__)
+        logging.debug(" database (%s) connection dome ", __database_name__)
+        try :
+            self.conn = sqlite3.connect(__database_name__)
+        except Exception as err:
+            logging.error("database [%s] error %s  ", __database_name__, str(err));
+            return err;
+
+        cur = self.conn.cursor()
+        logging.debug(" database (%s) connection dome ", __database_name__)
+        # query check the ip address of presence :
+        __query__ = " SELECT * FROM ? WHERE ? = ?";
+        cur.execute(__query__, __database_name__, __primary_key__, __key__, __value__)
+        self.conn.commit()
+        try:
+            result = cur.fetchone()
+        except Exception as err:
+            logging.error("database [%s] error %s  ", __database_name__, str(err));
+
+
     def database_insert_raw_data_fromFile(self, __database_name__,  __fileName__, __query__, __api_key__, __sample_key__, __version__):
         logging.debug("datbase create : [%s] :: %s", __fileName__, __database_name__)
 
@@ -66,6 +87,7 @@ class database():
             return err;
 
         cur = self.conn.cursor()
+        logging.debug(" database (%s) connection dome ", __database_name__)
         file = open(__fileName__, "rt")
         #file.read()
         Lines = file.readlines()
