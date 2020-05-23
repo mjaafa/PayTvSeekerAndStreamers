@@ -26,6 +26,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+
+// if you have no good reason to use void*, use the type
+// you've allocated. while it usually works for built-in
+// types, it wouldn't work for classes (it wouldn't call
+// the destructor)
 #include "cvpnhopper_types.h"
 #include "cVpnHopper.h"
 #ifdef INTERFACE_CONFIGURATION
@@ -44,6 +49,21 @@
 ** ##########################################################################################*/
 
 /*##############################################################################*/
+/*
+*
+*/
+
+__declspec(dllexport) char* stringdup(const char* str)
+{
+    char* p = new char[strlen(str)+1];
+    strcpy(p,str);
+    return p;
+}
+extern "C" {__declspec(dllexport) void stringfree(char* ptr) {
+    // you don't need to check for 0 before you delete it,
+    // but if you allocate with new[], free with delete[] !
+    delete [] ptr;
+}}
 char* get_capabilities(void)
 {
 //    char capabilities_supported [] = CAPA_NAME(get_hardware_mac_addres;;

@@ -96,7 +96,7 @@ typedef enum CVPNHOPPER_Error_e
 /**
 ** \brief defines the mac address size
 */
-#define IFMACSIZ    6
+#define IFMACSIZ    12
 
 /**
 ** \brief defines function name as COMMAND stringify.

@@ -48,10 +48,12 @@
 int main (void)
 {
     int z_ret = CVPNHOPPER_RET_OK;
-    char mac_address[IFMACSIZ];
+    unsigned char mac_address[IFMACSIZ];
     char *if_name = "wlp59s0";
-    memcpy((void*)&mac_address[0], (void*)ifconf_get_hardware_mac_address(if_name), IFMACSIZ);
-    CVPNHOPPER_INFO(" mac address ifname eth0 %02x:%02x:%02x:%02x:%02x:%02x", mac_address[0], mac_address[1], mac_address[2]
-                                                               , mac_address[3], mac_address[4], mac_address[5]);
+//    CVPNHOPPER_INFO(" mac address ifname wlp59s0 : %s",  ifconf_get_hardware_mac_address(if_name));
+
+    memcpy(&mac_address,strdup(ifconf_get_hardware_mac_address(if_name)), IFMACSIZ);
+    CVPNHOPPER_INFO(" mac address ifname wlp59s0 : %s",  mac_address);
+    
     return z_ret;
 }

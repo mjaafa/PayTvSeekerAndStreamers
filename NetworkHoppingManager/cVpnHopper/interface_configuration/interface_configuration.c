@@ -53,7 +53,12 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ])
 {
     int fd;
     struct ifreq ifr;
-    unsigned char *mac;
+    unsigned char mac[IFMACSIZ];
+    int i;
+ 
+    memset(mac, 0, (sizeof(unsigned char) * IFMACSIZ));
+
+    CVPNHOPPER_INFO(" get mac address for ifname %s ", interface_name);
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -64,7 +69,15 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ])
 
     close(fd);
 
-    return (unsigned char *)strdup(ifr.ifr_hwaddr.sa_data);
+    for (i=0; i<(IFMACSIZ/2); i++)
+    {
+        sprintf(&mac[i*2],"%02X",((unsigned char*)ifr.ifr_hwaddr.sa_data)[i]);
+    }
+
+    mac[IFMACSIZ]='\0';
+    CVPNHOPPER_INFO(" get mac address for ifname %s : %s", interface_name, mac);
+ 
+    return strdup(mac);
 }
 
 void ifconf_get_interface_configuration(char interface_name[IFNAMSIZ])

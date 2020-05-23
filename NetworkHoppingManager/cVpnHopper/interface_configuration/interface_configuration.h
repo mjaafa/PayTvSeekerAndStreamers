@@ -51,4 +51,4 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ]);
 }
 # endif
 
-#endif /* !CUDA_MODULE_H */
+#endif /* !INTERFACE_CONFIGURATION_H */
