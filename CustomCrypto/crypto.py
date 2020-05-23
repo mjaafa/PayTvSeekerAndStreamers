@@ -10,6 +10,7 @@ import re
 import hashlib
 from binascii import unhexlify
 from Colorer import colorer
+from NetworkHoppingManager.vpnHopper import vpnHopper
 
 class remote_credentials_data:
     CredTag         = 11
@@ -53,6 +54,12 @@ class crypto():
 
         # CREATE SOCKET
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ifname = "wlp59s0"
+        __vpn_instance___ = vpnHopper()
+        mac_address = vpnHopper.get_mac_address(__vpn_instance___, ifname)
+        logging.info(" get file descriptor : %d", sock.fileno())
+        result = vpnHopper.setup_if_conf_socket(__vpn_instance___, sock.fileno(), ifname)
+        logging.debug(" get mac address %s : %s )", ifname, mac_address)
         sock.settimeout(10)
 
         # WRAP SOCKET

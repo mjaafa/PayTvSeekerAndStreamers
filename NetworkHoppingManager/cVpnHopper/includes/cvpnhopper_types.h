@@ -61,22 +61,45 @@ free(tmp_string_for_extend); \
 /**
 ** @brief defines macro for private debug system using module restrictions.
 */
+typedef enum level_e
+{
+    lvl_no_logs = 0,
+    lvl_error   = 1,
+    lvl_warning = 2,
+    lvl_info    = 3,
+    lvl_log     = 4,
+    lvl_debug   = 5,
+    lvl_max
+
+} level_t;
+
+static level_t lvl_conf = lvl_debug;
 
 #define CVPNHOPPER_ERROR( ...)          \
-    printf("\033[31m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
-    printf( __VA_ARGS__);printf("\033[0m \n")
+    if(lvl_conf >= lvl_error)  { \
+        printf("\033[31m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
+        printf( __VA_ARGS__);printf("\033[0m \n"); \
+    }
 #define CVPNHOPPER_WARNING( ...)        \
-    printf("\033[33m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
-    printf( __VA_ARGS__);printf("\033[0m \n")
+    if(lvl_conf >= lvl_warning)  { \
+        printf("\033[33m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
+        printf( __VA_ARGS__);printf("\033[0m \n"); \
+    }
 #define CVPNHOPPER_INFO( ...)           \
-    printf("\033[32m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
-    printf( __VA_ARGS__);printf("\033[0m \n")
+    if(lvl_conf >= lvl_info)  { \
+        printf("\033[32m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
+        printf( __VA_ARGS__);printf("\033[0m \n"); \
+    }
 #define CVPNHOPPER_LOG( ...)            \
-    printf("\033[34m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
-    printf( __VA_ARGS__);printf("\033[0m \n")
+    if(lvl_conf >= lvl_log)  { \
+        printf("\033[34m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
+        printf( __VA_ARGS__);printf("\033[0m \n"); \
+    }
 #define CVPNHOPPER_DEBUG( ...)         \
-    printf("\033[36m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
-    printf( __VA_ARGS__);printf("\033[0m \n")
+    if(lvl_conf >= lvl_debug)  { \
+        printf("\033[36m"); printf("[%s]%s : %d > ",MODULE,__FUNCTION__,__LINE__);\
+        printf( __VA_ARGS__);printf("\033[0m \n"); \
+    }
 
 /* ##########################################################################################
 ** #                                       TYPEDEFS                                         #

@@ -64,3 +64,8 @@ unsigned char* get_hardware_mac_address(char interface_name[IFNAMSIZ])
 {
     return ifconf_get_hardware_mac_address(&interface_name[0]);
 }
+
+int get_interface_configuration (int socket, char interface_name[IFNAMSIZ])
+{
+    return ifconf_get_interface_configuration(socket, &interface_name[0]);
+}

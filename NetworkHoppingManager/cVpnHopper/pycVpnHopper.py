@@ -4,12 +4,11 @@ import ctypes
 class pycVpnHopper():
 
     def __init__(self):
-        so_file = 'libcVpnHopper.so'
+        so_file = '/home/mohamed/PycharmProjects/PayTvSeekerAndStreamers-v4.1.0/libcVpnHopper.so'
         self.cVpnHopper = CDLL(so_file)
         self.charptr = POINTER(c_char)
-        print("pycVpnHopper : init")
 
-    def getMacAddress(self, ifname):
+    def get_if_mac_address(self, ifname):
         func = self.cVpnHopper.get_hardware_mac_address
         func.argtypes = []
         func.restype  =  self.charptr
@@ -20,3 +19,16 @@ class pycVpnHopper():
             return c_result.value;
         else:
             return "C Function failed, check inputs"
+
+    def get_if_conf(self, __socket__, ifname):
+        func = self.cVpnHopper.get_interface_configuration
+        func.argtypes = [c_int, self.charptr]
+        func.restype  = c_int
+        __ifname__ = ctypes.create_string_buffer(str.encode(ifname))
+        c_result = self.cVpnHopper.get_interface_configuration(__socket__, __ifname__)
+        #c_result = ctypes.cast(result,ctypes.c_int)
+        if (c_result != -1):
+            return c_result;
+        else:
+            return "C Function failed, check inputs"
+

@@ -30,11 +30,11 @@ extern "C" {
  *
  * \param[in]   char[IFNAMSIZ]    interface_name  : interface name  .
  * \param[in]   int               sockfd          : socket file desc.
- * \return int  interface index.
+ * \return int  socket fd.
  * \author      mohamed.jaafar.vp\@protonmail.ch
  * \date        2020
  */
-void ifconf_get_interface_configuration(char interface_name[IFNAMSIZ]);
+int ifconf_get_interface_configuration(int socket, char interface_name[IFNAMSIZ]);
 
 /**
  *

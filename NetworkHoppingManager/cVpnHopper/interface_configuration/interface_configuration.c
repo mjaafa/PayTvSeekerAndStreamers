@@ -27,6 +27,10 @@
 ** ##########################################################################################*/
 #include "cvpnhopper_types.h"
 #include "interface_configuration.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
 /**
  *
  * \brief       gets the interface to configure and make network traffic on it.
@@ -58,7 +62,7 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ])
 
     memset(mac, 0, (sizeof(unsigned char) * IFMACSIZ));
 
-    CVPNHOPPER_INFO(" get mac address for ifname %s ", interface_name);
+    CVPNHOPPER_DEBUG(" get mac address for ifname %s ", interface_name);
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -75,19 +79,38 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ])
     }
 
     mac[IFMACSIZ]='\0';
-    CVPNHOPPER_INFO(" get mac address for ifname %s : %s", interface_name, mac);
+    CVPNHOPPER_DEBUG(" get mac address for ifname %s : %s", interface_name, mac);
  
     return strdup(mac);
 }
 
-void ifconf_get_interface_configuration(char interface_name[IFNAMSIZ])
+int ifconf_get_interface_configuration(int socket, char interface_name[IFNAMSIZ])
 {
-    int sockfd;
+    int z_ret = CVPNHOPPER_RET_OK;
+#ifdef ETH_RAW_COMMUNICATION
+    int sockfd = -1;
     struct sockaddr_ll socket_address;
-    socket_address.sll_ifindex = get_interface_index(interface_name, sockfd);
+    //socket_address.sll_ifindex = get_interface_index(interface_name, sockfd);
+    socket_address.sll_ifindex = if_nametoindex(interface_name);
     /* Address length*/
     socket_address.sll_halen = ETH_ALEN;
 
     /* Destination MAC */
     memcpy(socket_address.sll_addr, get_hardware_mac_address(interface_name), ETH_ALEN);
+#endif /* !ETH_RAW_COMMUNICATION */
+
+    struct ifreq ifr;
+
+    memset(&ifr, 0, sizeof(ifr));
+    strncpy(ifr.ifr_name, interface_name, sizeof(ifr.ifr_name));
+
+    if (setsockopt(socket, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0)
+    {
+        CVPNHOPPER_ERROR("socket option setup failed");
+        z_ret = CVPNHOPPER_RET_ERROR;
+    }
+
+    CVPNHOPPER_DEBUG(" socket %d opt (SO_REUSEADDR|SO_SNDBUF|SO_RCVBUF) ifname : %s ", socket, interface_name);
+
+    return z_ret;
 }

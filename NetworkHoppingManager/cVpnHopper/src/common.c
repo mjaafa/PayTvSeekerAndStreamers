@@ -35,7 +35,7 @@
 /* ##########################################################################################
 ** #                                   DEFINES & MACROS                                     #
 ** ##########################################################################################*/
-
+#define GOOGLE_URL      "https://wwww.google.com"
 /* ##########################################################################################
 ** #                                       TYPEDEFS                                         #
 ** ##########################################################################################*/
@@ -50,10 +50,18 @@ int main (void)
     int z_ret = CVPNHOPPER_RET_OK;
     unsigned char mac_address[IFMACSIZ];
     char *if_name = "wlp59s0";
-//    CVPNHOPPER_INFO(" mac address ifname wlp59s0 : %s",  ifconf_get_hardware_mac_address(if_name));
 
     memcpy(&mac_address,strdup(ifconf_get_hardware_mac_address(if_name)), IFMACSIZ);
     CVPNHOPPER_INFO(" mac address ifname wlp59s0 : %s",  mac_address);
+#if 0
+    int sfd;
 
+    sfd = ifconf_get_interface_configuration("wlp59s0");
+
+    if (-1 != sfd)
+    {
+        CVPNHOPPER_INFO(" socket to be modifed %d", sfd);
+    }
+#endif
     return z_ret;
 }
