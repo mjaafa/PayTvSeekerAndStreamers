@@ -55,7 +55,7 @@ unsigned char* ifconf_get_hardware_mac_address(char interface_name[IFNAMSIZ])
     struct ifreq ifr;
     unsigned char mac[IFMACSIZ];
     int i;
- 
+
     memset(mac, 0, (sizeof(unsigned char) * IFMACSIZ));
 
     CVPNHOPPER_INFO(" get mac address for ifname %s ", interface_name);

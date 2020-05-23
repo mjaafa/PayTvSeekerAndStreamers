@@ -4,6 +4,7 @@ import logging
 from logging.config import fileConfig
 from Seeker.seeker import seeker
 from Database.database import database
+from NetworkHoppingManager.vpnHopper import vpnHopper
 
 
 # package configuration
@@ -36,7 +37,11 @@ def __boot__():
 #    print("    MMMMMMMMMMNXXXXXXXXXWMMMMMMMMM")
 #    print("    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
 #    print("    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
-
+    logging.debug( " testing vpn hopper ")
+    __vpn_instance___ = vpnHopper()
+    #_vpnhopper.init()
+    mac_address = vpnHopper.getMacAdddress(__vpn_instance___, "wlp59s0")
+    logging.debug(" get mac address wlp59s0 : %s ", mac_address)
     logging.info(" # Booting The modules # ");
     logging.info(" * Booting Seeker module : ")
     __seeker__instance__ = seeker()
