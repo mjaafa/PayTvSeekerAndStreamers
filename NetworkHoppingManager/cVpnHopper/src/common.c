@@ -54,6 +54,6 @@ int main (void)
 
     memcpy(&mac_address,strdup(ifconf_get_hardware_mac_address(if_name)), IFMACSIZ);
     CVPNHOPPER_INFO(" mac address ifname wlp59s0 : %s",  mac_address);
-    
+
     return z_ret;
 }

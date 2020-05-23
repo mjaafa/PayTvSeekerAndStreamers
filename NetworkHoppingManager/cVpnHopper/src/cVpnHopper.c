@@ -53,17 +53,6 @@
 *
 */
 
-__declspec(dllexport) char* stringdup(const char* str)
-{
-    char* p = new char[strlen(str)+1];
-    strcpy(p,str);
-    return p;
-}
-extern "C" {__declspec(dllexport) void stringfree(char* ptr) {
-    // you don't need to check for 0 before you delete it,
-    // but if you allocate with new[], free with delete[] !
-    delete [] ptr;
-}}
 char* get_capabilities(void)
 {
 //    char capabilities_supported [] = CAPA_NAME(get_hardware_mac_addres;;
