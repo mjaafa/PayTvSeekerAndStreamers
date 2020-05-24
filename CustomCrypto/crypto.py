@@ -60,7 +60,6 @@ class crypto():
         logging.info(" get file descriptor : %d", sock.fileno())
         result = vpnHopper.setup_if_conf_socket(__vpn_instance___, sock.fileno(), ifname)
         logging.debug(" get mac address %s : %s )", ifname, mac_address)
-        sock.settimeout(10)
 
         # WRAP SOCKET
         wrappedSocket = context.wrap_socket(sock,

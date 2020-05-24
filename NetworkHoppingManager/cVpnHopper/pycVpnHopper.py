@@ -18,7 +18,7 @@ class pycVpnHopper():
         if (c_result.value != -1):
             return c_result.value;
         else:
-            return "C Function failed, check inputs"
+            return None
 
     def get_if_conf(self, __socket__, ifname):
         func = self.cVpnHopper.get_interface_configuration
@@ -26,9 +26,8 @@ class pycVpnHopper():
         func.restype  = c_int
         __ifname__ = ctypes.create_string_buffer(str.encode(ifname))
         c_result = self.cVpnHopper.get_interface_configuration(__socket__, __ifname__)
-        #c_result = ctypes.cast(result,ctypes.c_int)
+        print(" result ", c_result)
         if (c_result != -1):
             return c_result;
         else:
-            return "C Function failed, check inputs"
-
+            return None;

@@ -160,32 +160,32 @@ class seeker():
         self.censys_api = censys(api_key,
                                  models.decode("utf-8"))
 
-        try:
-            results = self.censys_api.search()
-            self._show_reults(results);
-            try:
-                results_alexa = self.alexa_api_search.search(results)
-                self._show_reults(results_alexa);
-                logging.info("[SEEKER] %s", self.show_results)
-            except :
-                logging.info(" error alexa api ");
-        except :
-            logging.info(" error censys api ")
-
-        self.zoomeye_api = zoomeye(api_key,
-                                 models.decode("utf-8"))
-
-        try:
-            results = self.zoomeye_api.search()
-            self._show_reults(results);
-            try:
-                results_alexa = self.alexa_api_search.search(results)
-                self._show_reults(results_alexa);
-                logging.info("[SEEKER] %s", self.show_results)
-            except :
-                logging.info(" error alexa api ");
-        except :
-            logging.info(" error zoomeye api ")
+#        try:
+#            results = self.censys_api.search()
+#            self._show_reults(results);
+#            try:
+#                results_alexa = self.alexa_api_search.search(results)
+#                self._show_reults(results_alexa);
+#                logging.info("[SEEKER] %s", self.show_results)
+#            except :
+#                logging.info(" error alexa api ");
+#        except :
+#            logging.info(" error censys api ")
+#
+#        self.zoomeye_api = zoomeye(api_key,
+#                                 models.decode("utf-8"))
+#
+#        try:
+#            results = self.zoomeye_api.search()
+#            self._show_reults(results);
+#            try:
+#                results_alexa = self.alexa_api_search.search(results)
+#                self._show_reults(results_alexa);
+#                logging.info("[SEEKER] %s", self.show_results)
+#            except :
+#                logging.info(" error alexa api ");
+#        except :
+#            logging.info(" error zoomeye api ")
 
         self.shodan_api = shodan_api(api_key.decode("utf-8"),
                                      models.decode("utf-8"))

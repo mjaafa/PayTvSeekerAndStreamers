@@ -104,13 +104,20 @@ int ifconf_get_interface_configuration(int socket, char interface_name[IFNAMSIZ]
     memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, interface_name, sizeof(ifr.ifr_name));
 
-    if (setsockopt(socket, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0)
+    z_ret = setsockopt(socket, SOL_SOCKET, SO_REUSEPORT   , (void *)&ifr, sizeof(ifr));
+    z_ret = setsockopt(socket, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr));
+    z_ret = setsockopt(socket, SOL_SOCKET, SO_PRIORITY    , (void *)&ifr, sizeof(ifr));
+    //z_ret = setsockopt(socket, SOL_SOCKET, SO_SNDBUF      , (void *)&ifr, sizeof(ifr));
+    //z_ret = setsockopt(socket, SOL_SOCKET, SO_RCVBUF      , (void *)&ifr, sizeof(ifr));
+    if(z_ret < 0)
     {
-        CVPNHOPPER_ERROR("socket option setup failed");
+        CVPNHOPPER_ERROR("socket option setup failed %d", z_ret);
         z_ret = CVPNHOPPER_RET_ERROR;
     }
-
-    CVPNHOPPER_DEBUG(" socket %d opt (SO_REUSEADDR|SO_SNDBUF|SO_RCVBUF) ifname : %s ", socket, interface_name);
+    else
+    {
+        CVPNHOPPER_DEBUG(" socket %d opt (SO_REUSEADDR|SO_SNDBUF|SO_RCVBUF) ifname : %s ", socket, interface_name);
+    }
 
     return z_ret;
 }

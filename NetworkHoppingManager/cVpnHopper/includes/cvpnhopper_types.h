@@ -110,8 +110,8 @@ static level_t lvl_conf = lvl_debug;
 */
 typedef enum CVPNHOPPER_Error_e
 {
-    CVPNHOPPER_RET_OK                        ,       /*!< no error                               */
-    CVPNHOPPER_RET_ERROR                     ,       /*!< specific dbus error                    */
+    CVPNHOPPER_RET_OK    = 0                    ,       /*!< no error                               */
+    CVPNHOPPER_RET_ERROR =-1                    ,       /*!< specific dbus error                    */
     CVPNHOPPER_RET_MAX
 
 }CVPNHOPPER_Error_t;

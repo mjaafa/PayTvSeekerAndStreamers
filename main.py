@@ -39,9 +39,11 @@ def __boot__():
 #    print("    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
     logging.debug( " testing vpn hopper ")
     __vpn_instance___ = vpnHopper()
-    #_vpnhopper.init()
-    mac_address = vpnHopper.getMacAdddress(__vpn_instance___, "wlp59s0")
-    logging.debug(" get mac address wlp59s0 : %s ", mac_address)
+    ifname = "enp0s20f0u5"
+#    ifname = "lo"
+    mac_address = vpnHopper.get_mac_address(__vpn_instance___, ifname)
+    socket = vpnHopper.setup_if_conf_urllib3(__vpn_instance___, ifname)
+    logging.debug(" get mac address %s : %s ", ifname, mac_address)
     logging.info(" # Booting The modules # ");
     logging.info(" * Booting Seeker module : ")
     __seeker__instance__ = seeker()
