@@ -30,12 +30,16 @@ from Engine.shodan_api import shodan_api
 from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
 from Engine.alexa_api import alexa_api
+from Engine.engine import engine
 
 class seeker():
     visibility = False
 
     def __init__(self):
-        logging.info(" init ")
+        logging.info(" Init Seeker :")
+        self.searchEngine = engine()
+        engine.configureProxy(self.searchEngine)
+        engine.startProxy(self.searchEngine)
 
     def set_browser_visibilty(self, __visible__):
         self.visibility = __visible__;
@@ -202,3 +206,5 @@ class seeker():
                 logging.info(" error alexa api ");
         except :
             logging.info(" error shodan api ");
+
+        engine.stopProxy(self.searchEngine)
