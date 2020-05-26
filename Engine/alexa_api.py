@@ -25,7 +25,7 @@ import sys
 class alexa_api():
     predefined_syntax_basic_url      = "https://www.alexa.com/siteinfo/"
     use_rest_api                     = False;
-    visibility                       = False;
+    visibility                       = True;
 
     def __init__( self, __api_name__):
         self.api_name = __api_name__
@@ -76,8 +76,7 @@ class alexa_api():
                         self.driver.implicitly_wait(2)
                         time.sleep(2.4)
                         url = self._build_urls(self._url_)
-                        logging.debug("potential server -- streamer : %s ",
-                                      url.split('/')[3])
+                        logging.debug("potential server -- streamer : %s ", url)
                         self.driver.get(url)
 
                         try:
