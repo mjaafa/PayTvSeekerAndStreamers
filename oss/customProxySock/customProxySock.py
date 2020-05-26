@@ -12,8 +12,6 @@ SOCKS_VERSION = 5
 class ThreadingTCPServer(ThreadingMixIn, TCPServer):
     pass
 
-#_ThreadingTCPServer = object()
-
 class SocksProxy(StreamRequestHandler):
     """ solution overide function in this class if defined with pass would be
     nice or justtake one and overloaded by copying and adding the affectation
@@ -177,8 +175,6 @@ class customProxySock():
             self.server.ifname = "enp0s20f0u5"
             self.server.username = self.__username__ #'0H6Q9Qmx'
             self.server.password = self.__password__ #'fUX1QHnc'
-            #global self.server.vpn_device_adapter;
-            #self.server.vpn_device_adapter = vpnHopper().setup_if_conf_socket
             mac_address = vpnHopper().get_mac_address(self.server.ifname)
             self.server.serve_forever()
             print(" Network device mac address %s : %s )", self.server.ifname, mac_address)

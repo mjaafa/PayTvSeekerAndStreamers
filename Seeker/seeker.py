@@ -25,7 +25,7 @@ class seeker():
 
     def __init__(self):
         logging.info(" Init seeker : database builder :")
-        self.searchEngine = engine("enp0s20f0u5")
+        self.searchEngine = engine("wlp59s0")
         engine.configureProxy(self.searchEngine)
         engine.startProxy(self.searchEngine)
 
@@ -125,7 +125,8 @@ class seeker():
             except:
                 logging.debug(" page unreachable ...");
                 self.driver.quit()
-                #display.close()
+                if (self.visibility):
+                    display.close()
                 continue;
                 pass;
 
@@ -162,21 +163,22 @@ class seeker():
                 logging.info(" error alexa api ");
         except :
             logging.info(" error censys api ")
-#
-#        self.zoomeye_api = zoomeye(api_key,
-#                                 models.decode("utf-8"))
-#
-#        try:
-#            results = self.zoomeye_api.search()
-#            self._show_reults(results);
-#            try:
-#                results_alexa = self.alexa_api_search.search(results)
-#                self._show_reults(results_alexa);
-#                logging.info("[SEEKER] %s", self.show_results)
-#            except :
-#                logging.info(" error alexa api ");
-#        except :
-#            logging.info(" error zoomeye api ")
+
+        self.zoomeye_api = zoomeye(api_key,
+                                   models.decode("utf-8"),
+                                   self.searchEngine)
+
+        try:
+            results = self.zoomeye_api.search()
+            self._show_reults(results);
+            try:
+                results_alexa = self.alexa_api_search.search(results)
+                self._show_reults(results_alexa);
+                logging.info("[SEEKER] %s", self.show_results)
+            except :
+                logging.info(" error alexa api ");
+        except :
+            logging.info(" error zoomeye api ")
 
         self.shodan_api = shodan_api(api_key.decode("utf-8"),
                                      models.decode("utf-8"))

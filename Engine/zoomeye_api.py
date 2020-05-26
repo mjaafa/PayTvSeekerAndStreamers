@@ -21,7 +21,7 @@ class zoomeye():
 
     predefined_syntax_basic_url      = "https://www.zoomeye.org/searchResult?q="
     use_rest_api                     = False;
-    visibility                       = False;
+    visibility                       = True;
     fineTune                         = 15;
 
 
