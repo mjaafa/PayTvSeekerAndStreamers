@@ -1,23 +1,17 @@
 import requests
 import json
 import logging
-import Colorer
+from Colorer import colorer
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import selenium
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import socket
 import time
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
 import pickle
 import os
-#trick n' tweak the browser
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
 import ipaddress
+
 
 class censys():
 
@@ -27,16 +21,17 @@ class censys():
     predefined_filter_443_line       = "443.http.get.status_line%3A+200+"
     predefined_filter_80_line        = "80.http.get.status_line%3A200"
     use_rest_api                     = False;
-    visibility                       = False;
+    visibility                       = True;
     expolit_bug                      = True;
     should_activates_cookies         = True;
     fineTune                         = 10;
 
-    def __init__( self, __api_key__, __models__):
+    def __init__( self, __api_key__, __models__, __engine__):
         __api_key = str(__api_key__).split(",")[1]
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
         self.secret  = __api_key.split("@")[2]
+        self.searchEngine = __engine__
         logging.debug(" API KEY : %s ", self.api_key)
         logging.debug(" secret KEY : %s ", self.secret)
         if (None == self.api_key or None == self.secret):
@@ -63,7 +58,8 @@ class censys():
         clients  = []
         logging.info("Check Potential Streamers :")
 
-        next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+        #next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
+        next_page  = True
         index = 0
         try :
             while None != next_page:
@@ -88,7 +84,7 @@ class censys():
                         logging.debug(" not ip address %s ", __ip__)
                         continue;
                         pass;
-
+                next_page = None
         except :
             logging.error("error page ")
             self.driver.quit()
@@ -102,17 +98,14 @@ class censys():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-        self.desired_capabilities = DesiredCapabilities.CHROME.copy()
-        self.desired_capabilities['acceptInsecureCerts'] = True
-        self.profile = webdriver.ChromeOptions()
-        self.profile.add_argument('--ignore-certificate-errors')
-        self.profile.add_argument('headless')
-        self.driver = webdriver.Chrome(chrome_options=self.profile)
+        self.driver = self.searchEngine.get_chromedriver(use_proxy=True)
+        logging.debug(" Engine search instance got")
         if (self.visibility):
             self.display = Display(visible=self.visibility, size=(800, 600))
             self.display.start()
         else:
-            self.driver.set_window_size(0,0)
+            logging.debug(" no display")
+            #self.driver.set_window_size(0,0)
 
         for self.url in __urls__:
             try:

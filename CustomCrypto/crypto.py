@@ -4,6 +4,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet, MultiFernet
 import base64
+import Colorer
 import logging, pprint
 import socket, ssl
 import re

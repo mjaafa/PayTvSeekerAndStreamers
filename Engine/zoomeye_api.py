@@ -3,16 +3,19 @@ import json
 import logging
 import Colorer
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import selenium
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+import requests
+import json
+import logging
+from Colorer import colorer
+from bs4 import BeautifulSoup
 import socket
 import time
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
-
+import pickle
+import os
+from random_user_agent.user_agent import UserAgent
+from random_user_agent.params import SoftwareName, OperatingSystem
+import ipaddress
 
 class zoomeye():
 
@@ -22,11 +25,12 @@ class zoomeye():
     fineTune                         = 15;
 
 
-    def __init__( self, __api_key__, __models__):
+    def __init__( self, __api_key__, __models__, __engine__):
         __api_key = str(__api_key__).split(",")[2]
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
         logging.debug(" API KEY : %s ", self.api_key)
+        self.searchEngine = __engine__
         if (None == self.api_key):
             self.use_rest_api = False;
 
@@ -69,15 +73,14 @@ class zoomeye():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-        self.profile = webdriver.ChromeOptions()
-        self.profile.add_argument('--ignore-certificate-errors')
-        self.profile.add_argument('--headless')
-        self.driver = webdriver.Chrome(chrome_options=self.profile)
+        self.driver = self.searchEngine.get_chromedriver(use_proxy=True)
+        logging.debug(" Engine search instance got")
         if (self.visibility):
            self.display = Display(visible=self.visibility, size=(800, 600))
            self.display.start()
         else:
-            self.driver.set_window_size(0,0)
+            #self.driver.set_window_size(0,0)
+            logging.info("no display")
 
         for url in __urls__:
             try:

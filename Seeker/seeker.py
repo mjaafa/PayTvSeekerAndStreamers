@@ -6,23 +6,11 @@
 from time import sleep
 import sys
 import logging
-import Colorer
-
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import selenium
+from Colorer import colorer
 import hashlib
 import json
 from pprint import pprint
 import os
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from pyvirtualdisplay import Display
 from Database.database import database
 from CustomCrypto.crypto import crypto
@@ -36,8 +24,8 @@ class seeker():
     visibility = False
 
     def __init__(self):
-        logging.info(" Init Seeker :")
-        self.searchEngine = engine()
+        logging.info(" Init seeker : database builder :")
+        self.searchEngine = engine("enp0s20f0u5")
         engine.configureProxy(self.searchEngine)
         engine.startProxy(self.searchEngine)
 
@@ -124,21 +112,19 @@ class seeker():
             return self;
 
     def _show_reults(self, results):
+        # no threading (same device ...)
+        self.driver = self.searchEngine.get_chromedriver(use_proxy=False)
+        logging.debug(" Engine search instance got")
         for result in results:
             logging.debug("url %s ", result)
             # logging.debug("results : %s ", result['data'])
-            desired_capabilities = DesiredCapabilities.FIREFOX.copy()
-            desired_capabilities['acceptInsecureCerts'] = True
-            driver = webdriver.Firefox(capabilities=desired_capabilities)
-            driver.accept_untrusted_certs = True
-            driver.acceptSslCerts = True
-            driver.set_window_size(1024, 768)
+            self.driver.set_window_size(1024, 768)
             try:
-                driver.implicitly_wait(10)
-                driver.get(result)
+                self.driver.implicitly_wait(10)
+                self.driver.get(result)
             except:
                 logging.debug(" page unreachable ...");
-                driver.quit()
+                self.driver.quit()
                 #display.close()
                 continue;
                 pass;
@@ -162,19 +148,20 @@ class seeker():
         self.__init_storing_streamers()
 
         self.censys_api = censys(api_key,
-                                 models.decode("utf-8"))
+                                 models.decode("utf-8"),
+                                 self.searchEngine)
 
-#        try:
-#            results = self.censys_api.search()
-#            self._show_reults(results);
-#            try:
-#                results_alexa = self.alexa_api_search.search(results)
-#                self._show_reults(results_alexa);
-#                logging.info("[SEEKER] %s", self.show_results)
-#            except :
-#                logging.info(" error alexa api ");
-#        except :
-#            logging.info(" error censys api ")
+        try:
+            results = self.censys_api.search()
+            self._show_reults(results);
+            try:
+                results_alexa = self.alexa_api_search.search(results)
+                self._show_reults(results_alexa);
+                logging.info("[SEEKER] %s", self.show_results)
+            except :
+                logging.info(" error alexa api ");
+        except :
+            logging.info(" error censys api ")
 #
 #        self.zoomeye_api = zoomeye(api_key,
 #                                 models.decode("utf-8"))

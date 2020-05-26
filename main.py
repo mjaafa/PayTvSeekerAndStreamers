@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # Package  import
 import logging
+from Colorer import colorer
 from logging.config import fileConfig
 from Seeker.seeker import seeker
 from Database.database import database
-from NetworkHoppingManager.vpnHopper import vpnHopper
+import sys
 
 
 # package configuration
@@ -37,13 +38,6 @@ def __boot__():
 #    print("    MMMMMMMMMMNXXXXXXXXXWMMMMMMMMM")
 #    print("    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
 #    print("    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
-    logging.debug( " testing vpn hopper ")
-    __vpn_instance___ = vpnHopper()
-    ifname = "enp0s20f0u5"
-#    ifname = "lo"
-    mac_address = vpnHopper.get_mac_address(__vpn_instance___, ifname)
-    socket = vpnHopper.setup_if_conf_urllib3(__vpn_instance___, ifname)
-    logging.debug(" get mac address %s : %s ", ifname, mac_address)
     logging.info(" # Booting The modules # ");
     logging.info(" * Booting Seeker module : ")
     __seeker__instance__ = seeker()
@@ -66,3 +60,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)

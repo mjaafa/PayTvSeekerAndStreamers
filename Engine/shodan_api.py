@@ -1,6 +1,6 @@
 import shodan
 import logging
-import Colorer
+from Colorer import colorer
 
 class shodan_api():
     def __init__( self, __api_key__, __models__):

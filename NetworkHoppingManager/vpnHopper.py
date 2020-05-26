@@ -1,7 +1,7 @@
 import socket
 #import openvpn_api.VPN
 import logging
-import Colorer
+from Colorer import colorer
 import _socket
 from _socket import *
 import os, sys, io, selectors
@@ -38,7 +38,7 @@ class vpnHopper():
         logging.debug(" get socket on the network device %s", ifname)
         self.ifname = ifname;
         # patching socket module for urlib3.
-        return setup_if_conf_socket(socket, self.ifname)
+        return self.setup_if_conf_socket(socket, self.ifname)
 
     def create_connection_vpn(
         self,

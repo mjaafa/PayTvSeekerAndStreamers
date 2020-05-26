@@ -1,23 +1,37 @@
 import logging
+from Colorer import colorer
 import select
 import socket
 import struct
 from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
+from NetworkHoppingManager.vpnHopper import vpnHopper
 
 # logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
 
-
 class ThreadingTCPServer(ThreadingMixIn, TCPServer):
     pass
 
+#_ThreadingTCPServer = object()
 
 class SocksProxy(StreamRequestHandler):
-    username = 'mg7bJRJW8vAj'
-    password = '44aXK6hk13wIN52VkXmwdfMd'
+    username = '0H6Q9Qmx'
+    password = 'fUX1QHnc'
+    """ solution overide function in this class if defined with pass would be
+    nice or justtake one and overloaded by copying and adding the affectation
+    hurray hurray
+    for remote credentials nice to keep the real credentials here but an update
+    would be great  related to version better (sotfware)
+    """
+    # username = 'username'
+    # password = 'password'
+
+    def vpn_device_adapter(self, socket, ifname):
+        print(" vpn connection ")
+        pass
 
     def handle(self):
-        logging.info('Accepting connection from %s:%s' % self.client_address)
+        print('Accepting connection from %s:%s' % self.client_address)
 
         # greeting header
         # read and unpack 2 bytes from a client
@@ -44,8 +58,11 @@ class SocksProxy(StreamRequestHandler):
             return
 
         # request
-        version, cmd, _, address_type = struct.unpack("!BBBB", self.connection.recv(4))
-        assert version == SOCKS_VERSION
+        try:
+            version, cmd, _, address_type = struct.unpack("!BBBB", self.connection.recv(4))
+            assert version == SOCKS_VERSION
+        except:
+            print("error handleding request ")
 
         if address_type == 1:  # IPv4
             address = socket.inet_ntoa(self.connection.recv(4))
@@ -60,9 +77,21 @@ class SocksProxy(StreamRequestHandler):
             if cmd == 1:  # CONNECT
                 remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 remote.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                if (not self.server._device_init):
+                    ifname = "enp0s20f0u5"
+                    vpn_instance = vpnHopper()
+                    self.server._device_init = True
+                    result = vpnHopper.setup_if_conf_socket(vpn_instance ,socket, ifname)
+                    #self.server.vpn_device_adapter(socket, ifname)
+                    print(" Network device get file descriptor : %d", socket)
+                else:
+                    print("device already initialized")
+                    self.server._device_init = False
+
+
                 remote.connect((address, port))
                 bind_address = remote.getsockname()
-                logging.info('Connected to %s %s' % (address, port))
+                print('Connected to %s %s' % (address, port))
             else:
                 self.server.close_request(self.request)
 
@@ -72,7 +101,7 @@ class SocksProxy(StreamRequestHandler):
                                 addr, port)
 
         except Exception as err:
-            logging.error(err)
+            print(err)
             # return connection refused error
             reply = self.generate_failed_reply(address_type, 5)
 
@@ -91,8 +120,11 @@ class SocksProxy(StreamRequestHandler):
         return methods
 
     def verify_credentials(self):
-        version = ord(self.connection.recv(1))
-        assert version == 1
+        try:
+            version = ord(self.connection.recv(1))
+            assert version == 1
+        except:
+            print(" error in getting credentials ")
 
         username_len = ord(self.connection.recv(1))
         username = self.connection.recv(username_len).decode('utf-8')
@@ -132,6 +164,14 @@ class SocksProxy(StreamRequestHandler):
                 if client.send(data) <= 0:
                     break
 
+#    def server_close(self):
+#        """Called to clean-up the server.
+#
+#        May be overridden.
+#
+#        """
+#        self._device_init = False
+#        pass
 
 class customProxySock():
 
@@ -141,9 +181,14 @@ class customProxySock():
         self.__password__ = __password__
 
     def launchProxySock(self):
-        with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as server:
-            self.daeomonHolder = server
-            self.daeomonHolder.serve_forever()
+        with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as self.server:
+            self.server._device_init = False
+            self.server.serve_forever()
+            self.server.ifname = "enp0s20f0u5"
+            #global self.server.vpn_device_adapter;
+            #self.server.vpn_device_adapter = vpnHopper().setup_if_conf_socket
+            #mac_address = vpnHopper.get_mac_address(self.server.vpn_instance, ifname)
+            print(" Network device mac address %s : %s )", self.server.ifname, mac_address)
 
     def shutdownProxySock(self):
-            self.daeomonHolder.server_close()
+        self.server.shutdown
