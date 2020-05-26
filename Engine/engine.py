@@ -82,8 +82,8 @@ chrome.webRequest.onAuthRequired.addListener(
 """ % (PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS)
 
 class engine():
-    proxyUsername = 'mg7bJRJW8vAj'
-    proxyPassword = '44aXK6hk13wIN52VkXmwdfMd'
+    proxyUsername = PROXY_USER
+    proxyPassword = PROXY_PASS
     _init          = False;
 
     def __init__(self, device="wlp59s0"):

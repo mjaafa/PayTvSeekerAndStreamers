@@ -15,8 +15,6 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer):
 #_ThreadingTCPServer = object()
 
 class SocksProxy(StreamRequestHandler):
-    username = '0H6Q9Qmx'
-    password = 'fUX1QHnc'
     """ solution overide function in this class if defined with pass would be
     nice or justtake one and overloaded by copying and adding the affectation
     hurray hurray
@@ -25,10 +23,6 @@ class SocksProxy(StreamRequestHandler):
     """
     # username = 'username'
     # password = 'password'
-
-    def vpn_device_adapter(self, socket, ifname):
-        print(" vpn connection ")
-        pass
 
     def handle(self):
         print('Accepting connection from %s:%s' % self.client_address)
@@ -78,20 +72,25 @@ class SocksProxy(StreamRequestHandler):
                 remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 remote.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 if (not self.server._device_init):
-                    ifname = "enp0s20f0u5"
+                    #ifname = "enp0s20f0u5"
                     vpn_instance = vpnHopper()
                     self.server._device_init = True
-                    result = vpnHopper.setup_if_conf_socket(vpn_instance ,socket, ifname)
+                    result = vpnHopper.setup_if_conf_socket(vpn_instance
+                                                            ,socket,
+                                                            self.server.ifname)
                     #self.server.vpn_device_adapter(socket, ifname)
                     print(" Network device get file descriptor : %d", socket)
                 else:
                     print("device already initialized")
                     self.server._device_init = False
 
+                try:
+                    remote.connect((address, port))
+                    bind_address = remote.getsockname()
+                    print('Connected to %s %s' % (address, port))
+                except:
+                    print(" error remote connection")
 
-                remote.connect((address, port))
-                bind_address = remote.getsockname()
-                print('Connected to %s %s' % (address, port))
             else:
                 self.server.close_request(self.request)
 
@@ -132,7 +131,7 @@ class SocksProxy(StreamRequestHandler):
         password_len = ord(self.connection.recv(1))
         password = self.connection.recv(password_len).decode('utf-8')
 
-        if username == self.username and password == self.password:
+        if username == self.server.username and password == self.server.password:
             # success, status = 0
             response = struct.pack("!BB", version, 0)
             self.connection.sendall(response)
@@ -164,17 +163,9 @@ class SocksProxy(StreamRequestHandler):
                 if client.send(data) <= 0:
                     break
 
-#    def server_close(self):
-#        """Called to clean-up the server.
-#
-#        May be overridden.
-#
-#        """
-#        self._device_init = False
-#        pass
-
 class customProxySock():
-
+    __username__=""
+    __password__=""
     def __init__(self, port=1080, __username__="username", __password__="password"):
         self.port = port
         self.__username__ = __username__
@@ -183,11 +174,13 @@ class customProxySock():
     def launchProxySock(self):
         with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as self.server:
             self.server._device_init = False
-            self.server.serve_forever()
             self.server.ifname = "enp0s20f0u5"
+            self.server.username = self.__username__ #'0H6Q9Qmx'
+            self.server.password = self.__password__ #'fUX1QHnc'
             #global self.server.vpn_device_adapter;
             #self.server.vpn_device_adapter = vpnHopper().setup_if_conf_socket
-            #mac_address = vpnHopper.get_mac_address(self.server.vpn_instance, ifname)
+            mac_address = vpnHopper().get_mac_address(self.server.ifname)
+            self.server.serve_forever()
             print(" Network device mac address %s : %s )", self.server.ifname, mac_address)
 
     def shutdownProxySock(self):
