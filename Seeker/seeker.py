@@ -25,7 +25,7 @@ class seeker():
 
     def __init__(self):
         logging.info(" Init seeker : database builder :")
-        self.searchEngine = engine("wlp59s0")
+        self.searchEngine = engine()
         engine.configureProxy(self.searchEngine)
         engine.startProxy(self.searchEngine)
 

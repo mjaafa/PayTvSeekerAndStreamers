@@ -12,9 +12,6 @@ import socket
 from urllib3.util import connection
 
 from NetworkHoppingManager.cVpnHopper.pycVpnHopper import  pycVpnHopper
-#sys.modules['socket'] = pycVpnHopper
-
-_GLOBAL_DEFAULT_TIMEOUT = object()
 
 urllib3_custom_connection = connection.create_connection
 

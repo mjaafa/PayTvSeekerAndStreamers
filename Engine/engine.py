@@ -82,9 +82,10 @@ chrome.webRequest.onAuthRequired.addListener(
 """ % (PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS)
 
 class engine():
-    proxyUsername = PROXY_USER
-    proxyPassword = PROXY_PASS
-    _init          = False;
+    proxyUsername   = PROXY_USER
+    proxyPassword   = PROXY_PASS
+    _init           = False;
+    __device__      = ""
 
     def __init__(self, device="wlp59s0"):
         logging.debug("starting Search Engine");
@@ -102,7 +103,9 @@ class engine():
 
     def configureProxy(self):
         logging.debug("configure proxy for selenium");
-        self.proxyProcessor = customProxySock(1080, self.proxyUsername, self.proxyPassword)
+        self.proxyProcessor = customProxySock(1080, self.proxyUsername,
+                                              self.proxyPassword,
+                                              self.__device__)
 
     def startProxy(self):
         pass

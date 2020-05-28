@@ -164,7 +164,9 @@ class SocksProxy(StreamRequestHandler):
 class customProxySock():
     __username__=""
     __password__=""
-    def __init__(self, port=1080, __username__="username", __password__="password"):
+    __ifname__  =""
+    def __init__(self, port=1080, __username__="username",
+                 __password__="password", __ifname__="eth0"):
         self.port = port
         self.__username__ = __username__
         self.__password__ = __password__
@@ -172,12 +174,12 @@ class customProxySock():
     def launchProxySock(self):
         with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as self.server:
             self.server._device_init = False
-            self.server.ifname = "enp0s20f0u5"
-            self.server.username = self.__username__ #'0H6Q9Qmx'
-            self.server.password = self.__password__ #'fUX1QHnc'
-            mac_address = vpnHopper().get_mac_address(self.server.ifname)
+            self.server.ifname = self.__ifname__
+            self.server.username = self.__username__
+            self.server.password = self.__password__
+            mac_address = vpnHopper().get_mac_address(self.__ifname__)
             self.server.serve_forever()
-            print(" Network device mac address %s : %s )", self.server.ifname, mac_address)
+            print(" Network device mac address %s : %s )", self.__ifname__, mac_address)
 
     def shutdownProxySock(self):
         self.server.shutdown
