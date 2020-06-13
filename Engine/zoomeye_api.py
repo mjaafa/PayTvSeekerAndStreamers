@@ -30,7 +30,7 @@ class zoomeye():
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
         logging.debug(" API KEY : %s ", self.api_key)
-        self.searchEngine = __engine__
+        self.searchEngineProxy = __engine__
         if (None == self.api_key):
             self.use_rest_api = False;
 
@@ -73,7 +73,7 @@ class zoomeye():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-        self.driver = self.searchEngine.get_chromedriver(use_proxy=True)
+        self.driver = self.searchEngineProxy.getChromedriverProxy(use_proxy=True)
         logging.debug(" Engine search instance got")
         if (self.visibility):
            self.display = Display(visible=self.visibility, size=(800, 600))

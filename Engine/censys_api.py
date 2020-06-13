@@ -1,6 +1,11 @@
 import requests
 import json
 import logging
+import Colorer
+from bs4 import BeautifulSoup
+import requests
+import json
+import logging
 from Colorer import colorer
 from bs4 import BeautifulSoup
 import socket
@@ -31,7 +36,7 @@ class censys():
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
         self.secret  = __api_key.split("@")[2]
-        self.searchEngine = __engine__
+        self.searchEngineProxy = __engine__
         logging.debug(" API KEY : %s ", self.api_key)
         logging.debug(" secret KEY : %s ", self.secret)
         if (None == self.api_key or None == self.secret):
@@ -72,11 +77,11 @@ class censys():
                         clients.append(ip);
                         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
 
-                        if None == next_page:
-                            self.driver.close()
+#                        if None == next_page:
+#                            self.driver.close()
 
-                            if (self.visibility):
-                                self.display.close()
+                        if (self.visibility):
+                            self.display.close()
                         return clients
 
                         self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
@@ -98,15 +103,16 @@ class censys():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-        self.driver = self.searchEngine.get_chromedriver(use_proxy=True)
+        self.driver = self.searchEngineProxy.getChromedriverProxy(use_proxy=True)
         logging.debug(" Engine search instance got")
         if (self.visibility):
-            self.display = Display(visible=self.visibility, size=(800, 600))
-            self.display.start()
+           self.display = Display(visible=self.visibility, size=(800, 600))
+           self.display.start()
         else:
             logging.debug(" no display")
             #self.driver.set_window_size(0,0)
 
+        logging.debug(" url = %s", __urls__)
         for self.url in __urls__:
             try:
                 if (None != self.url):
@@ -114,6 +120,7 @@ class censys():
 
                     # Configuration browser
                     try :
+                        logging.debug("engine check page")
                         self.driver.implicitly_wait(self.fineTune)
                         logging.debug(" page reached ...");
                         time.sleep(20.4)

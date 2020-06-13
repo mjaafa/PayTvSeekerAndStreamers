@@ -10,16 +10,54 @@ from typing import overload
 import sys
 import socket
 from urllib3.util import connection
+import mmap
+import enum
+import re
+import massedit
+import hashlib
+import base64
+from cryptography.hazmat.primitives import kdf
+from cryptography.hazmat.primitives import hashes
+from ast import literal_eval
+import sys
+import sh
+import subprocess
+
+class vpnConfiguration:
+    use_interfaces    = "interfaces_use"
+    ignore_interfaces = "interfaces_ignore"
 
 from NetworkHoppingManager.cVpnHopper.pycVpnHopper import  pycVpnHopper
 
 urllib3_custom_connection = connection.create_connection
+
+class network_interfaces :
+    net_interface_1 = "wlp59s0"
+    net_interface_2 = "enp0s20f0u5"
+
+CONFIGURATION_VPN_FILE="strongswan.conf"
 
 class vpnHopper():
 
     def __init__(self):
         logging.debug(" init network vpnHopper module")
         self.cVpnHopper_instance  = pycVpnHopper()
+
+    def vpnBounceConfManagement(self, device="wlp59s0"):
+        filenames = ['/etc/strongswan.conf']
+        if (device is network_interfaces.net_interface_1):
+            subprocess.run(["ipsec", "down", "protonvpn-connection"], stdout=subprocess.DEVNULL)
+            logging.debug(" patching configuration file for use %s ", network_interfaces.net_interface_1)
+            massedit.command_line([CONFIGURATION_VPN_FILE, "-w", "-e", "re.sub('.*interfaces_use=.*', '        interfaces_use=wlp59s0', line)",     "-w", "-s", "/etc/", CONFIGURATION_VPN_FILE])
+            subprocess.run(["ipsec", "up", "protonvpn-connection"], stdout=subprocess.DEVNULL)
+        elif (device is network_interfaces.net_interface_2):
+            subprocess.run(["ipsec", "down", "protonvpn-connection"], stdout=subprocess.DEVNULL)
+            #sh.run(['ipsec down protonvpn-connection'])
+            logging.debug(" patching configuration file for use %s ", network_interfaces.net_interface_2)
+            massedit.command_line([CONFIGURATION_VPN_FILE, "-w", "-e", "re.sub('.*interfaces_use=.*', '        interfaces_use=enp0s20f0u5', line)", "-w", "-s", "/etc/", CONFIGURATION_VPN_FILE])
+            subprocess.run(["ipsec", "up","protonvpn-connection"], stdout=subprocess.DEVNULL)
+        else:
+            logging.debug(" no device found for patching interface hopping ")
 
     def get_mac_address(self, ifname):
         logging.debug(" get MAC Address of the network device %s", ifname)

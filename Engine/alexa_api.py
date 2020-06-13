@@ -27,8 +27,9 @@ class alexa_api():
     use_rest_api                     = False;
     visibility                       = True;
 
-    def __init__( self, __api_name__):
+    def __init__( self, __api_name__, __engine__):
         self.api_name = __api_name__
+        self.searchEngineProxy = __engine__
         logging.info(" api key")
 
     def _build_urls(self, __url__):
@@ -47,27 +48,25 @@ class alexa_api():
         return search_traffic
 
     def search(self, results):
-        if(self.api_name != "censys"):
-            return
-        logging.debug(" walkthrough the list")
+#        if(self.api_name != "censys"):
+#            return
+        logging.debug(" walkthrough the list %s", results)
 
         # Configuration browser
-        self.profile = webdriver.ChromeOptions()
-        self.profile.add_argument('--ignore-certificate-errors')
-        self.profile.add_argument('--headless')
-        self.driver = webdriver.Chrome(chrome_options=self.profile)
-        self.desired_capabilities = DesiredCapabilities.CHROME.copy()
-        self.desired_capabilities['acceptInsecureCerts'] = True
-        #options.binary_location = "/usr/bin/chromium"
+        logging.debug(" Engine search instance ....")
+        self.driver = self.searchEngineProxy.getChromedriverProxy(use_proxy=True)
+        logging.debug(" Engine search instance got")
         if (self.visibility):
             self.display = Display(visible=self.visibility, size=(800, 600))
             self.display.start()
         else:
-            self.driver.set_window_size(0,0)
+            logging.debug(" no display")
+            #self.driver.set_window_size(0,0)
 
         for self._url_ in results:
             try:
                 if (None != self._url_):
+                    logging.debug(" url = %s", self._url_)
 
                     # Configuration browser
                     try :
