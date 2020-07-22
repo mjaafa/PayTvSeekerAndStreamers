@@ -1,10 +1,14 @@
 from ctypes import *
 import ctypes
+import os
+import Colorer
+import logging
 
 class pycVpnHopper():
 
     def __init__(self):
-        so_file = '/home/mohamed/PycharmProjects/PayTvSeekerAndStreamers-v4.1.0/libcVpnHopper.so'
+        logging.debug(" current directory : %s", os.getcwd())
+        so_file = os.getcwd() + '/libcVpnHopper.so'
         self.cVpnHopper = CDLL(so_file)
         self.charptr = POINTER(c_char)
 
