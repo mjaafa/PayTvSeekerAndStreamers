@@ -21,7 +21,7 @@ from Engine.engine import engine
 import time
 
 class seeker():
-    visibility = False
+    visibility = True
 
     def __init__(self):
         logging.info(" Init seeker : database builder :")

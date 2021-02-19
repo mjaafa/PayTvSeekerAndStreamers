@@ -13,14 +13,14 @@ from urllib3.util import connection
 import mmap
 import enum
 import re
-import massedit
+#import massedit
 import hashlib
 import base64
 from cryptography.hazmat.primitives import kdf
 from cryptography.hazmat.primitives import hashes
 from ast import literal_eval
 import sys
-import sh
+#import sh
 import subprocess
 
 class vpnConfiguration:

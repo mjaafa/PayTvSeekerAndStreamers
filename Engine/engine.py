@@ -109,6 +109,7 @@ class engine():
 
     def configureProxy(self):
         if(self._init == True):
+            logging.debug("Proxy already initialized")
             return
 
         logging.debug("configure proxy for selenium");
