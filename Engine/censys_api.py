@@ -1,6 +1,11 @@
 import requests
 import json
 import logging
+import Colorer
+from bs4 import BeautifulSoup
+import requests
+import json
+import logging
 from Colorer import colorer
 from bs4 import BeautifulSoup
 import socket
@@ -21,7 +26,7 @@ class censys():
     predefined_filter_443_line       = "443.http.get.status_line%3A+200+"
     predefined_filter_80_line        = "80.http.get.status_line%3A200"
     use_rest_api                     = False;
-    visibility                       = True;
+    visibility                       = False;
     expolit_bug                      = True;
     should_activates_cookies         = True;
     fineTune                         = 10;
@@ -31,10 +36,10 @@ class censys():
         logging.info(" api key : %s ", __api_key.split("@")[1])
         self.api_key = __api_key.split("@")[1]
         self.secret  = __api_key.split("@")[2]
-        self.searchEngine = __engine__
+        self.searchEngineProxy = __engine__
         logging.debug(" API KEY : %s ", self.api_key)
         logging.debug(" secret KEY : %s ", self.secret)
-        if (None == self.api_key or None == self.secret):
+        if (self.api_key == None or self.secret == None):
             self.use_rest_api = False;
 
         logging.info(" censys api init")
@@ -62,7 +67,7 @@ class censys():
         next_page  = True
         index = 0
         try :
-            while None != next_page:
+            while (next_page != None):
                 results = self.driver.find_elements_by_css_selector("#resultset");
                 logging.debug("Search info : %s ", results[0].text)
                 for line in results[0].text.split('\n'):
@@ -72,11 +77,11 @@ class censys():
                         clients.append(ip);
                         next_page = self.driver.find_elements_by_css_selector(".hover > a:nth-child(1)")
 
-                        if None == next_page:
-                            self.driver.close()
+#                        if (next_page == None):
+#                            self.driver.close()
 
-                            if (self.visibility):
-                                self.display.close()
+                        if (self.visibility):
+                            self.display.close()
                         return clients
 
                         self.driver.find_element_by_css_selector('.hover > a:nth-child(1)').click()
@@ -98,31 +103,33 @@ class censys():
         __urls__ = self._build_urls()
         logging.info(" urls : %s ", __urls__)
         page_results = []
-        self.driver = self.searchEngine.get_chromedriver(use_proxy=True)
+        self.driver = self.searchEngineProxy.getChromedriverProxy(use_proxy=True)
         logging.debug(" Engine search instance got")
         if (self.visibility):
-            self.display = Display(visible=self.visibility, size=(800, 600))
-            self.display.start()
+           self.display = Display(visible=self.visibility, size=(800, 600))
+           self.display.start()
         else:
             logging.debug(" no display")
             #self.driver.set_window_size(0,0)
 
+        logging.debug(" url = %s", __urls__)
         for self.url in __urls__:
             try:
-                if (None != self.url):
+                if (self.url  != ""):
                     logging.debug("url : %s ", self.url)
 
                     # Configuration browser
                     try :
+                        logging.debug("engine check page")
                         self.driver.implicitly_wait(self.fineTune)
                         logging.debug(" page reached ...");
                         time.sleep(20.4)
-                        if (True == self.expolit_bug):
+                        if (self.expolit_bug == True):
                             pickle.dump(self.driver.get_cookies(), open("cookies.pkl", "wb"))
 
                         logging.debug(" get url !: %s", self.url)
                         self.driver.get(self.url)
-                        if (True == self.expolit_bug):
+                        if (self.expolit_bug == True):
                             cookies = pickle.load(open("cookies.pkl", "rb"))
                             for cookie in cookies:
                                 self.driver.add_cookie(cookie)
@@ -140,7 +147,7 @@ class censys():
                     except:
                         print(" page unreachable ...");
                         self.driver.close()
-                        if (True == self.visibility):
+                        if (self.visibility == True):
                             self.display.close()
                         continue;
                         pass;
@@ -149,7 +156,7 @@ class censys():
                 self.driver.close()
                 if (self.visibility):
                     self.display.close()
-                if(self.expolit_bug):
+                if(self.expolit_bug == True):
                     os.remove("cookies.pkl")
 
         return page_results

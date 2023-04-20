@@ -53,8 +53,9 @@ class SocksProxy(StreamRequestHandler):
         try:
             version, cmd, _, address_type = struct.unpack("!BBBB", self.connection.recv(4))
             assert version == SOCKS_VERSION
-        except:
-            print("error handleding request ")
+        except Exception as err:
+            print("error handleding request ", err)
+            self.server.error = e;
 
         if address_type == 1:  # IPv4
             address = socket.inet_ntoa(self.connection.recv(4))
@@ -86,8 +87,9 @@ class SocksProxy(StreamRequestHandler):
                     remote.connect((address, port))
                     bind_address = remote.getsockname()
                     print('Connected to %s %s' % (address, port))
-                except:
-                    print(" error remote connection")
+                except Exception as err:
+                    print(" error remote connection ", err)
+                    self.server.error = e
 
             else:
                 self.server.close_request(self.request)
@@ -98,7 +100,8 @@ class SocksProxy(StreamRequestHandler):
                                 addr, port)
 
         except Exception as err:
-            print(err)
+            print(" error remote connection ", err)
+            self.server.error = err
             # return connection refused error
             reply = self.generate_failed_reply(address_type, 5)
 
@@ -120,8 +123,8 @@ class SocksProxy(StreamRequestHandler):
         try:
             version = ord(self.connection.recv(1))
             assert version == 1
-        except:
-            print(" error in getting credentials ")
+        except Exception as err:
+            print(" error in getting credentials ", err)
 
         username_len = ord(self.connection.recv(1))
         username = self.connection.recv(username_len).decode('utf-8')
@@ -166,13 +169,14 @@ class customProxySock():
     __password__=""
     __ifname__  =""
     def __init__(self, port=1080, __username__="username",
-                 __password__="password", __ifname__="eth0"):
+                 __password__="password", __ifname__="wlp59s0"):
         self.port = port
         self.__username__ = __username__
         self.__password__ = __password__
 
     def launchProxySock(self):
         with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as self.server:
+            logging.debug(" launchProxySock")
             self.server._device_init = False
             self.server.ifname = self.__ifname__
             self.server.username = self.__username__
@@ -180,6 +184,17 @@ class customProxySock():
             mac_address = vpnHopper().get_mac_address(self.__ifname__)
             self.server.serve_forever()
             print(" Network device mac address %s : %s )", self.__ifname__, mac_address)
+
+    def getNotificationError(self):
+        logging.error("Notify error connection")
+        return self.server.error
+#    def registerErrorProxySockConnectioNotifier(self, notificationFunction):
+#        logging.error("connection was down")
+#        self.server.connectionNotifier = notificationFunction
+#
+#    def getErrorProxySockConnectioNotifier(self, notificationFunction):
+#        logging.error("connection was down")
+#        return self.server.connectionNotifier = notificationFunction
 
     def shutdownProxySock(self):
         self.server.shutdown

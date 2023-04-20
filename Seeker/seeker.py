@@ -1,8 +1,7 @@
 #
 #
-# Search SHODAN and print a list of IPs matching the query
 #
-# Author: achillean
+# Author: mohamed jaafar
 from time import sleep
 import sys
 import logging
@@ -19,12 +18,14 @@ from Engine.censys_api import censys
 from Engine.zoomeye_api import zoomeye
 from Engine.alexa_api import alexa_api
 from Engine.engine import engine
+import time
 
 class seeker():
-    visibility = False
+    visibility = True
 
     def __init__(self):
         logging.info(" Init seeker : database builder :")
+        #self.searchEngine = engine("enp0s20f0u5")
         self.searchEngine = engine()
         engine.configureProxy(self.searchEngine)
         engine.startProxy(self.searchEngine)
@@ -113,7 +114,7 @@ class seeker():
 
     def _show_reults(self, results):
         # no threading (same device ...)
-        self.driver = self.searchEngine.get_chromedriver(use_proxy=False)
+        self.driver = self.searchEngine.getChromedriverProxy(self.searchEngine, use_proxy=True, user_agent=None)
         logging.debug(" Engine search instance got")
         for result in results:
             logging.debug("url %s ", result)
@@ -126,7 +127,8 @@ class seeker():
                 logging.debug(" page unreachable ...");
                 self.driver.quit()
                 if (self.visibility):
-                    display.close()
+                    logging.debug("TODO : display fix ..")
+                    #display.close()
                 continue;
                 pass;
 
@@ -148,6 +150,7 @@ class seeker():
 
         self.__init_storing_streamers()
 
+        time.sleep(10)
         self.censys_api = censys(api_key,
                                  models.decode("utf-8"),
                                  self.searchEngine)
@@ -156,6 +159,7 @@ class seeker():
             results = self.censys_api.search()
             self._show_reults(results);
             try:
+                self.alexa_api_search = alexa_api("censys", self.searchEngine)
                 results_alexa = self.alexa_api_search.search(results)
                 self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
@@ -172,6 +176,7 @@ class seeker():
             results = self.zoomeye_api.search()
             self._show_reults(results);
             try:
+                self.alexa_api_search = alexa_api("censys", self.searchEngine)
                 results_alexa = self.alexa_api_search.search(results)
                 self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
@@ -187,7 +192,7 @@ class seeker():
             results = self.shodan_api.search()
             #self._show_reults(results);
             try:
-                self.alexa_api_search = alexa_api("censys")
+                self.alexa_api_search = alexa_api("censys", self.searchEngine)
                 results_alexa = self.alexa_api_search.search(results)
                 self._show_reults(results_alexa);
                 logging.info("[SEEKER] %s", self.show_results)
