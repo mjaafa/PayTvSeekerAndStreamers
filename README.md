@@ -1,3 +1,11 @@
+# PayTvSeekerAndStreamers
+
+PayTvSeekerAndStreamers is a Python-based defensive OSINT project designed to search for, normalize, store, and report information about exposed Pay TV, IPTV, and streaming-related services.
+
+The tool integrates with external search platforms such as Shodan, Censys, and ZoomEye to collect publicly indexed service data. It normalizes discovered results, stores them in a local SQLite database, and generates structured reports in JSON, CSV, and HTML formats.
+
+The project is intended for authorized security research, exposure monitoring, anti-piracy investigations, and defensive analysis of streaming infrastructure.
+
 # PayTvSeekerAndStreamers — local credentials + cleaned engine/report flow
 
 This cleaned legacy branch keeps the original project shape but removes the
