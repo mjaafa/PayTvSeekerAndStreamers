@@ -12,7 +12,7 @@ from Engine.results import dedupe_results, normalize_legacy_result
 from Engine.shodan_api import shodan_api
 from Engine.zoomeye_api import zoomeye
 from Reporting.report_writer import ReportWriter
-
+from Reporting.web_access_checker import WebAccessChecker
 
 class seeker:
     visibility = False
@@ -192,12 +192,28 @@ class seeker:
         self.engine_status.append(status)
 
     def _finalize_results(self):
-        self.normalized_results = dedupe_results(self.normalized_results)
+        web_report_paths = {}
+        if os.environ.get("PAYTV_CHECK_WEB_LOAD", "0") == "0":
+            try:
+                checker = WebAccessChecker(os.environ.get("PAYTV_REPORT_DIR", "reports"))
+                web_report_paths = checker.check_results(self.normalized_results)
+            except Exception as err:
+                logging.error("Web-load check failed: %s", err)
+                web_report_paths = {"web_error": str(err)}
+
+        self.report_paths = self.reporter.write(
+            self.normalized_results,
+            engine_status=self.engine_status,
+            related_reports=web_report_paths,
+        )
+        self.report_paths.update(web_report_paths)
+
+        """self.normalized_results = dedupe_results(self.normalized_results)
         if hasattr(self, "resultStore"):
             self.resultStore.upsert_many(self.normalized_results)
         self.report_paths = self.reporter.write(self.normalized_results, self.engine_status)
         logging.info("Result flow complete: %d normalized result(s)", len(self.normalized_results))
-        return self.report_paths
+        return self.report_paths"""
 
     def search(self):
         api_key, models = self._load_decrypted_search_material()

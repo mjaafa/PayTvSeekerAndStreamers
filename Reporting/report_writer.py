@@ -19,9 +19,12 @@ class ReportWriter:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def write(self, results: Iterable[Dict[str, Any]], engine_status=None) -> Dict[str, str]:
+    #def write(self, results: Iterable[Dict[str, Any]], engine_status=None) -> Dict[str, str]:
+    def write(self, results, engine_status=None, related_reports=None):
         normalized = dedupe_results(results)
         engine_status = engine_status or []
+        related_reports = related_reports or {}
+
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         base = self.output_dir / f"paytv_report_{stamp}"
 
