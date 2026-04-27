@@ -1,184 +1,94 @@
-import sqlite3
-import logging, pprint
-import Colorer
-
+import logging
 import os.path
-import hashlib
-import pickle
-import os
-import sys
+import re
+import sqlite3
 
-class database():
-    # init database holding
+
+_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _validate_identifier(name):
+    if not _IDENTIFIER.match(str(name)):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return str(name)
+
+
+class database:
     def __init__(self, __database_name__, __table_definition__):
-        # Each rocket has an (x,y) position.
-        logging.debug("Init Database : %s", __database_name__)
-
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        # build query :
-        logging.debug(" >> %s | %s | %s ", __table_definition__, __database_name__, os.path.isfile(__database_name__))
-        cur = self.conn.cursor()
-        if (os.path.isfile(__database_name__)):
-            logging.debug("datbase create : [%s] %s", __database_name__, __table_definition__)
-            query = 'CREATE TABLE IF NOT EXISTS ' + str(__table_definition__) + '';
-            logging.debug(" Query %s :", query)
+        logging.debug("Init Database: %s", __database_name__)
+        self.conn = sqlite3.connect(__database_name__)
+        try:
+            cur = self.conn.cursor()
+            query = "CREATE TABLE IF NOT EXISTS " + str(__table_definition__)
             cur.execute(query)
             self.conn.commit()
-        else:
-            logging.debug("datbase already exsits")
-            return None;
-        self.conn.close()
+        finally:
+            self.conn.close()
+
+    def _fetch_one_value(self, __database_name__, column, __index__):
+        column = _validate_identifier(column)
+        with sqlite3.connect(__database_name__) as conn:
+            cur = conn.cursor()
+            cur.execute(
+                f"SELECT {column} FROM SEARCH_API WHERE TOKEN_HASH = ?",
+                (str(__index__),),
+            )
+            result = cur.fetchone()
+        if not result:
+            raise KeyError(f"No SEARCH_API row for TOKEN_HASH={__index__!r}")
+        return result[0].strip() if isinstance(result[0], str) else result[0]
 
     def checkEncryption(self, __database_name__, __hashToken__):
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        cur.execute(" SELECT TOKEN_HASH FROM SEARCH_API; ")
-        self.conn.commit()
-        result = cur.fetchall()
-        logging.debug(">> result %s ", result)
-        if (result != 0):
-            for hash in result:
-                if (str(hash[0]).strip() == str(__hashToken__).strip()):
-                    logging.debug(" keys already generated ")
-                    cur.close()
-                    return self;
-        else:
-            cur.close()
-            return None;
-
-    def database_insert_element(self,__database_name__,  __primary_key__, __key__, __value__):
-        logging.debug("insert element : (%s) from primary key : %s in database (%s)", __key__, __primary_key__, __database_name__)
-        logging.debug(" database (%s) connection dome ", __database_name__)
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        logging.debug(" database (%s) connection dome ", __database_name__)
-        # query check the ip address of presence :
-        __query__ = " SELECT * FROM ? WHERE ? = ?";
-        cur.execute(__query__, __database_name__, __primary_key__, __key__, __value__)
-        self.conn.commit()
-        try:
+        with sqlite3.connect(__database_name__) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT TOKEN_HASH FROM SEARCH_API WHERE TOKEN_HASH = ?", (str(__hashToken__).strip(),))
             result = cur.fetchone()
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
+        return self if result else None
 
-
-    def database_insert_raw_data_fromFile(self, __database_name__,  __fileName__, __query__, __api_key__, __sample_key__, __version__):
-        logging.debug("datbase create : [%s] :: %s", __fileName__, __database_name__)
-
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        logging.debug(" database (%s) connection dome ", __database_name__)
-        file = open(__fileName__, "rt")
-        #file.read()
-        Lines = file.readlines()
-        count=0
-        keys=[]
-        for line in Lines:
-            count+=1
-            keys.append(line.strip())
-            if (count == 1 ):
-                cur.execute(" SELECT TOKEN_HASH FROM SEARCH_API; ")
-                self.conn.commit()
-                result = cur.fetchall()
-                logging.debug(">> result %s ", result)
-                if (result != 0):
-                    for hash in result:
-                        if (str(hash[0]).strip() == str(keys[0]).strip()):
-                            logging.debug(" the same entry do not insert ")
-                            cur.close()
-                            return self;
-                else:
-                    cur.close()
-                    return None;
-
-        keys.append(__api_key__);
-        keys.append((__sample_key__))
-        keys.append((__version__))
-        cur = self.conn.cursor()
-        cur.execute(__query__, keys)
-        self.conn.commit()
-        cur.close()
+    def database_insert_element(self, __database_name__, __table_name__, __primary_key__, __key__, __value__):
+        table = _validate_identifier(__table_name__)
+        primary_key = _validate_identifier(__primary_key__)
+        with sqlite3.connect(__database_name__) as conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT 1 FROM {table} WHERE {primary_key} = ?", (__key__,))
+            if cur.fetchone():
+                return self
+            # Kept for backward compatibility; callers should prefer explicit insert methods.
+            logging.warning("database_insert_element has no column map; nothing inserted for %s", table)
         return self
 
-    def getApiKey(self, __database_name__ , __index__):
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
+    def database_insert_raw_data_fromFile(self, __database_name__, __fileName__, __query__, __api_key__, __sample_key__, __version__):
+        logging.debug("Database insert from %s into %s", __fileName__, __database_name__)
+        with open(__fileName__, "rt", encoding="utf-8") as file:
+            keys = [line.strip() for line in file.readlines()]
 
-        cur = self.conn.cursor()
-        query = "SELECT API_KEY FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
-        cur.execute(query)
-        self.conn.commit()
-        result = cur.fetchone()
-        logging.info(" >> api key :: %s ", result)
-        logging.info(" >> api key :: %s ", result[0].strip())
-        cur.close()
-        return result[0].strip()
+        if not keys:
+            raise ValueError("Session key file is empty")
+
+        with sqlite3.connect(__database_name__) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT TOKEN_HASH FROM SEARCH_API WHERE TOKEN_HASH = ?", (keys[0],))
+            if cur.fetchone():
+                logging.debug("Search key entry already exists; updating encrypted API/search material")
+                cur.execute(
+                    "UPDATE SEARCH_API SET KEY1 = ?, KEY2 = ?, API_KEY = ?, SEARCH_KEY = ?, VERSION = ? WHERE TOKEN_HASH = ?",
+                    (keys[1], keys[2], __api_key__, __sample_key__, __version__, keys[0]),
+                )
+                conn.commit()
+                return self
+            keys.extend([__api_key__, __sample_key__, __version__])
+            cur.execute(__query__, keys)
+            conn.commit()
+        return self
+
+    def getApiKey(self, __database_name__, __index__):
+        return self._fetch_one_value(__database_name__, "API_KEY", __index__)
 
     def getSearchKeys(self, __database_name__, __index__):
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        query = "SELECT SEARCH_KEY FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
-        cur.execute(query)
-        self.conn.commit()
-        result = cur.fetchone()
-        logging.info(" >> search key :: %s ", result[0].strip())
-        cur.close()
-        return result[0].strip()
+        return self._fetch_one_value(__database_name__, "SEARCH_KEY", __index__)
 
     def getEncryptKey(self, __database_name__, __index__):
-        try :
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        query = "SELECT KEY1 FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) +"\""
-        cur.execute(query)
-        self.conn.commit()
-        result = cur.fetchone()
-        cur.close()
-        return result[0].strip()
+        return self._fetch_one_value(__database_name__, "KEY1", __index__)
 
     def getDecryptKey(self, __database_name__, __index__):
-        try:
-            self.conn = sqlite3.connect(__database_name__)
-        except Exception as err:
-            logging.error("database [%s] error %s  ", __database_name__, str(err));
-            return err;
-
-        cur = self.conn.cursor()
-        query = "SELECT KEY2 FROM SEARCH_API WHERE TOKEN_HASH == \"" + str(__index__) + "\""
-        cur.execute(query)
-        self.conn.commit()
-        result = cur.fetchone()
-        cur.close()
-        return result[0].strip()
+        return self._fetch_one_value(__database_name__, "KEY2", __index__)

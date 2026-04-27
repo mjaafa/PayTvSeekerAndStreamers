@@ -1,41 +1,115 @@
-import shodan
 import logging
-from Colorer import colorer
 
-class shodan_api():
-    def __init__( self, __api_key__, __models__):
-        logging.info(" shodan api init")
-        __api_key = str(__api_key__).split(",")[0]
-        logging.info(" api key : %s ", __api_key.split("@")[1])
-        self.api_key = __api_key.split("@")[1]
-        logging.debug(" API KEY : %s ", self.api_key)
-        self.api = shodan.Shodan(self.api_key)
-        self.api.keywords = __models__
-        logging.info(" >> decrypted models key :: %s ", __models__)
+from Engine.common import is_real_secret, parse_api_bundle, split_keywords
+from Engine.results import normalized_result
+
+
+def _load_shodan():
+    try:
+        import shodan
+    except ImportError as err:
+        raise RuntimeError(
+            "The shodan Python package is required only when a Shodan API key is configured. "
+            "Install requirements.txt or remove the Shodan key."
+        ) from err
+    return shodan
+
+
+class shodan_api:
+    name = "shodan"
+
+    def __init__(self, __api_key__, __models__, limit=100):
+        logging.info("Shodan API engine initialized")
+        keys = parse_api_bundle(__api_key__)
+        values = keys.get("shodan", [])
+        raw_key = str(__api_key__ or "").strip()
+        self.api_key = values[0] if values else (raw_key if is_real_secret(raw_key) and "@" not in raw_key else "")
+        self.keywords = split_keywords(__models__)
+        self.limit = limit
+        self.api = None
+        self.last_status = {"engine": self.name, "status": "created", "result_count": 0, "error": ""}
 
     def search(self):
-        logging.info("search the keywords via shodan API %s", self.api.keywords)
-        urld = []
-        try:
-            for __keyword__ in self.api.keywords.split(','):
-                logging.info(" models search = %s", __keyword__)
-                try:
-                    results = self.api.search(__keyword__)
-                    #logging.info(" matches : ", results['matches'])
+        if not self.api_key:
+            return self._skip("Shodan API key is missing")
+        if not self.keywords:
+            return self._skip("Shodan API key configured, but no model queries are configured")
+        if self.api is None:
+            self.api = _load_shodan().Shodan(self.api_key)
 
-                    for result in results['matches']:
-                        logging.debug("results : %s ", result['ip_str'])
+        results = []
+        seen = set()
+        errors = []
+        for keyword in self.keywords:
+            logging.info("Searching Shodan for keyword: %s", keyword)
+            try:
+                payload = self.api.search(keyword, limit=self.limit)
+            except Exception as err:
+                message = f"{keyword}: {err}"
+                errors.append(message)
+                logging.error("Shodan query failed for %r: %s", keyword, err)
+                continue
 
-                        if (result['port'] == 80):
-                            urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                        elif (result['port'] == 443):
-                            urld.append('https://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                        else:
-                            urld.append('http://{}'.format(result['ip_str']) + ':' + str(result['port']))
-                except:
-                    logging.error(" Error : cannot walkthrough the list")
-        except:
-            logging.error(" Error : cannot walkthrough the list")
+            for match in payload.get("matches", []):
+                item = self._result_from_match(keyword, match)
+                if not item:
+                    continue
+                key = (item["engine"], item["query"], item["url"])
+                if key not in seen:
+                    seen.add(key)
+                    results.append(item)
 
-        logging.debug("URL %s", urld)
-        return urld;
+        self.last_status = {
+            "engine": self.name,
+            "status": "ok" if not errors else "partial_error",
+            "result_count": len(results),
+            "error": "; ".join(errors[:3]),
+        }
+        logging.info("Shodan returned %d unique result(s)", len(results))
+        return results
+
+    def _result_from_match(self, keyword, match):
+        ip = match.get("ip_str") or match.get("ip")
+        if not ip:
+            return None
+        port = match.get("port", 80)
+        ssl_enabled = bool(match.get("ssl"))
+        protocol = "https" if ssl_enabled or int(port or 0) in {443, 8443} else "http"
+        http_data = match.get("http") or {}
+        location = match.get("location") or {}
+        hostnames = match.get("hostnames") or []
+        title = http_data.get("title") or match.get("title") or ""
+        data = match.get("data") or ""
+        organization = match.get("org") or match.get("isp") or ""
+        return normalized_result(
+            engine=self.name,
+            query=keyword,
+            ip=ip,
+            port=port,
+            protocol=protocol,
+            hostnames=hostnames,
+            country=location.get("country_code") or location.get("country_name") or "",
+            organization=organization,
+            title=title,
+            banner=data,
+            evidence={
+                "source": "shodan",
+                "transport": match.get("transport", ""),
+                "product": match.get("product", ""),
+                "version": match.get("version", ""),
+            },
+            confidence=self._confidence(title, data),
+        )
+
+    def _confidence(self, title, banner):
+        text = f"{title} {banner}".lower()
+        score = 0.4
+        for marker in ("dreambox", "twistedweb", "openwebif", "cccam", "enigma2"):
+            if marker in text:
+                score += 0.1
+        return min(score, 0.9)
+
+    def _skip(self, reason):
+        logging.warning("%s; skipping Shodan search", reason)
+        self.last_status = {"engine": self.name, "status": "skipped", "result_count": 0, "error": reason}
+        return []
