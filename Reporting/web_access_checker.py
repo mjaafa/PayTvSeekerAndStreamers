@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -50,7 +51,11 @@ class WebAccessChecker:
         normalized = dedupe_results(results)
         if self.max_results > 0:
             normalized = normalized[: self.max_results]
-        checks = [self._check_one(item) for item in normalized if item.get("url")]
+        to_check = [item for item in normalized if item.get("url")]
+        max_workers = min(10, len(to_check) or 1)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(self._check_one, item): item for item in to_check}
+            checks = [future.result() for future in as_completed(futures)]
         return self.write(checks)
 
     def write(self, checks: List[Dict[str, Any]]) -> Dict[str, str]:

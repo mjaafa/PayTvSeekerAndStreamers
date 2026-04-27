@@ -1,6 +1,6 @@
 import logging
 
-from Engine.common import is_real_secret, parse_api_bundle, split_keywords
+from Engine.common import confidence_score, is_real_secret, parse_api_bundle, split_keywords
 from Engine.results import normalized_result
 
 
@@ -98,16 +98,8 @@ class shodan_api:
                 "product": match.get("product", ""),
                 "version": match.get("version", ""),
             },
-            confidence=self._confidence(title, data),
+            confidence=confidence_score(title, data),
         )
-
-    def _confidence(self, title, banner):
-        text = f"{title} {banner}".lower()
-        score = 0.4
-        for marker in ("dreambox", "twistedweb", "openwebif", "cccam", "enigma2"):
-            if marker in text:
-                score += 0.1
-        return min(score, 0.9)
 
     def _skip(self, reason):
         logging.warning("%s; skipping Shodan search", reason)

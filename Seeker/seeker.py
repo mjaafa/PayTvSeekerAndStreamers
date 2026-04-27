@@ -1,5 +1,6 @@
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from CustomCrypto.crypto import crypto
@@ -15,31 +16,28 @@ from Reporting.report_writer import ReportWriter
 from Reporting.web_access_checker import WebAccessChecker
 
 class seeker:
-    visibility = False
 
     def __init__(self):
         logging.info("Initializing seeker")
+        self.visibility = False
         self.searchEngine = engine(device=os.environ.get("PAYTV_BIND_DEVICE", ""))
         self.proxy_enabled = os.environ.get("PAYTV_ENABLE_LOCAL_PROXY", "0") == "1"
         if self.proxy_enabled:
             self.searchEngine.configureProxy()
             self.searchEngine.startProxy()
-        self.show_results = []  # Legacy URL-only list, kept for optional browser/Alexa flow.
+        self.show_results = []
         self.normalized_results = []
         self.engine_status = []
         self.report_paths = {}
         self.reporter = ReportWriter(os.environ.get("PAYTV_REPORT_DIR", "reports"))
 
-    def set_browser_visibilty(self, __visible__):
-        self.visibility = bool(__visible__)
+    def set_browser_visibility(self, visible):
+        self.visibility = bool(visible)
 
-    def get_browser_visibilty(self):
+    def get_browser_visibility(self):
         return self.visibility
 
     def __init_storing_search_keys(self):
-        # Local credentials.json is the default/offline mode.  A remote
-        # PAYTV_CREDENTIALS_URL remains optional, but startup no longer depends
-        # on reaching a credential server.
         self.cryptoCore = crypto(os.environ.get("PAYTV_CREDENTIALS_URL"))
 
         if crypto.crypto_fetchServerToken(self.cryptoCore) is None:
@@ -117,9 +115,7 @@ class seeker:
         logging.info("Configuration initialized")
         return self
 
-    def _show_reults(self, results, engine_name="legacy"):
-        # Legacy name kept for compatibility.  Browser verification is optional
-        # and disabled unless PAYTV_VERIFY_RESULTS_IN_BROWSER=1.
+    def _show_results(self, results, engine_name="legacy"):
         results = results or []
         normalized = [normalize_legacy_result(item, engine=engine_name) for item in results]
         normalized = dedupe_results(normalized)
@@ -191,9 +187,18 @@ class seeker:
             status["error"] = str(error)
         self.engine_status.append(status)
 
+    def _run_engine(self, name, search_engine):
+        try:
+            logging.info("Running %s engine", name)
+            results = search_engine.search()
+            return name, search_engine, results, None
+        except Exception as err:
+            logging.error("%s engine failed: %s", name, err)
+            return name, search_engine, None, err
+
     def _finalize_results(self):
         web_report_paths = {}
-        if os.environ.get("PAYTV_CHECK_WEB_LOAD", "0") == "0":
+        if os.environ.get("PAYTV_DISABLE_WEB_LOAD", "0") != "1":
             try:
                 checker = WebAccessChecker(os.environ.get("PAYTV_REPORT_DIR", "reports"))
                 web_report_paths = checker.check_results(self.normalized_results)
@@ -201,19 +206,17 @@ class seeker:
                 logging.error("Web-load check failed: %s", err)
                 web_report_paths = {"web_error": str(err)}
 
+        self.normalized_results = dedupe_results(self.normalized_results)
+        if hasattr(self, "resultStore"):
+            self.resultStore.upsert_many(self.normalized_results)
+
         self.report_paths = self.reporter.write(
             self.normalized_results,
             engine_status=self.engine_status,
             related_reports=web_report_paths,
         )
         self.report_paths.update(web_report_paths)
-
-        """self.normalized_results = dedupe_results(self.normalized_results)
-        if hasattr(self, "resultStore"):
-            self.resultStore.upsert_many(self.normalized_results)
-        self.report_paths = self.reporter.write(self.normalized_results, self.engine_status)
         logging.info("Result flow complete: %d normalized result(s)", len(self.normalized_results))
-        return self.report_paths"""
 
     def search(self):
         api_key, models = self._load_decrypted_search_material()
@@ -226,20 +229,20 @@ class seeker:
         ]
 
         try:
-            for name, search_engine in engines:
-                try:
-                    logging.info("Running %s engine", name)
-                    results = search_engine.search()
-                    self._show_reults(results, engine_name=name)
-                    self._record_engine_status(name, search_engine, results=results)
-                except Exception as err:
-                    logging.error("%s engine failed: %s", name, err)
-                    self._record_engine_status(name, search_engine, error=err)
+            with ThreadPoolExecutor(max_workers=len(engines)) as executor:
+                futures = {executor.submit(self._run_engine, name, eng): name for name, eng in engines}
+                for future in as_completed(futures):
+                    name, search_engine, results, error = future.result()
+                    if error:
+                        self._record_engine_status(name, search_engine, error=error)
+                    else:
+                        self._show_results(results, engine_name=name)
+                        self._record_engine_status(name, search_engine, results=results)
 
             if os.environ.get("PAYTV_ENABLE_ALEXA_ENRICHMENT", "0") == "1":
                 try:
                     alexa_api_search = alexa_api("legacy", self.searchEngine)
-                    self._show_reults(alexa_api_search.search(self.show_results), engine_name="alexa")
+                    self._show_results(alexa_api_search.search(self.show_results), engine_name="alexa")
                     self.engine_status.append({"engine": "alexa", "status": "ok", "result_count": 0, "error": ""})
                 except Exception as err:
                     logging.error("Alexa enrichment failed: %s", err)

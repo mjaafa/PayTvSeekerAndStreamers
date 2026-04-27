@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Any, Dict, Iterable, List, Optional
 
-from Engine.common import parse_api_bundle, split_keywords
+from Engine.common import confidence_score, parse_api_bundle, split_keywords
 from Engine.results import normalized_result
 
 
@@ -116,7 +116,7 @@ class zoomeye:
                         "asn": self._first_nonempty(item, "asn"),
                         "update_time": self._first_nonempty(item, "update_time", "timestamp", "time"),
                     },
-                    confidence=self._confidence(title, banner, service),
+                    confidence=confidence_score(title, banner, service),
                 )
             )
         return results
@@ -221,14 +221,6 @@ class zoomeye:
         if not isinstance(hostnames, Iterable):
             return []
         return [str(value) for value in hostnames if str(value).strip()]
-
-    def _confidence(self, title, banner, service):
-        text = f"{title} {banner} {service}".lower()
-        score = 0.4
-        for marker in ("dreambox", "twistedweb", "openwebif", "cccam", "enigma2"):
-            if marker in text:
-                score += 0.1
-        return min(score, 0.9)
 
     def _skip(self, reason):
         logging.warning("%s; skipping ZoomEye search", reason)

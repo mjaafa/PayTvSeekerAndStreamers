@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from Engine.common import parse_api_bundle, split_keywords
+from Engine.common import confidence_score, parse_api_bundle, split_keywords
 from Engine.results import normalized_result
 
 
@@ -144,7 +144,7 @@ class censys:
                             "transport_protocol": service.get("transport_protocol", ""),
                             "observed_at": service.get("observed_at", ""),
                         },
-                        confidence=self._confidence(title, service_name, extended_name),
+                        confidence=confidence_score(title, service_name, extended_name),
                     )
                 )
         return results
@@ -286,14 +286,6 @@ class censys:
         }
         logging.info("Censys Platform returned %d unique result(s)", len(all_results))
         return all_results
-
-    def _confidence(self, title, service_name, extended_name=""):
-        text = f"{title} {service_name} {extended_name}".lower()
-        score = 0.4
-        for marker in ("dreambox", "twistedweb", "openwebif", "cccam", "enigma2"):
-            if marker in text:
-                score += 0.1
-        return min(score, 0.9)
 
     def _skip(self, reason):
         logging.warning("%s; skipping Censys search", reason)

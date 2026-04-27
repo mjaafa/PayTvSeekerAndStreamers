@@ -56,3 +56,16 @@ def result_url(ip: str, port, protocol=None) -> str:
 
 def log_engine_error(engine_name: str, err: Exception):
     logging.error("%s engine error: %s", engine_name, err)
+
+
+_CONFIDENCE_MARKERS = ("dreambox", "twistedweb", "openwebif", "cccam", "enigma2")
+
+
+def confidence_score(*text_fields: str) -> float:
+    """Compute a [0.4, 0.9] confidence score based on known Pay-TV markers."""
+    combined = " ".join(text_fields).lower()
+    score = 0.4
+    for marker in _CONFIDENCE_MARKERS:
+        if marker in combined:
+            score += 0.1
+    return min(score, 0.9)
