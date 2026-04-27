@@ -1,200 +1,154 @@
 import logging
-from Colorer import colorer
 import select
 import socket
 import struct
-from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
-from NetworkHoppingManager.vpnHopper import vpnHopper
+from socketserver import StreamRequestHandler, TCPServer, ThreadingMixIn
 
-# logging.basicConfig(level=logging.DEBUG)
+try:
+    from NetworkHoppingManager.vpnHopper import vpnHopper
+except Exception:  # pragma: no cover - optional Linux-only helper
+    vpnHopper = None
+
+
 SOCKS_VERSION = 5
 
+
 class ThreadingTCPServer(ThreadingMixIn, TCPServer):
-    pass
+    allow_reuse_address = True
+    daemon_threads = True
+
 
 class SocksProxy(StreamRequestHandler):
-    """ solution overide function in this class if defined with pass would be
-    nice or justtake one and overloaded by copying and adding the affectation
-    hurray hurray
-    for remote credentials nice to keep the real credentials here but an update
-    would be great  related to version better (sotfware)
-    """
-    # username = 'username'
-    # password = 'password'
-
     def handle(self):
-        print('Accepting connection from %s:%s' % self.client_address)
-
-        # greeting header
-        # read and unpack 2 bytes from a client
-        header = self.connection.recv(2)
-        version, nmethods = struct.unpack("!BB", header)
-
-        # socks 5
-        assert version == SOCKS_VERSION
-        assert nmethods > 0
-
-        # get available methods
-        methods = self.get_available_methods(nmethods)
-
-        # accept only USERNAME/PASSWORD auth
-        if 2 not in set(methods):
-            # close connection
-            self.server.close_request(self.request)
-            return
-
-        # send welcome message
-        self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, 2))
-
-        if not self.verify_credentials():
-            return
-
-        # request
+        remote = None
         try:
-            version, cmd, _, address_type = struct.unpack("!BBBB", self.connection.recv(4))
-            assert version == SOCKS_VERSION
-        except Exception as err:
-            print("error handleding request ", err)
-            self.server.error = e;
+            if not self._negotiate_authentication():
+                return
+            cmd, address, port, address_type = self._read_request()
+            if cmd != 1:  # CONNECT only
+                self.connection.sendall(self.generate_failed_reply(address_type, 7))
+                return
 
-        if address_type == 1:  # IPv4
-            address = socket.inet_ntoa(self.connection.recv(4))
-        elif address_type == 3:  # Domain name
-            domain_length = ord(self.connection.recv(1)[0])
-            address = self.connection.recv(domain_length)
-
-        port = struct.unpack('!H', self.connection.recv(2))[0]
-
-        # reply
-        try:
-            if cmd == 1:  # CONNECT
-                remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                remote.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                if (not self.server._device_init):
-                    #ifname = "enp0s20f0u5"
-                    vpn_instance = vpnHopper()
-                    self.server._device_init = True
-                    result = vpnHopper.setup_if_conf_socket(vpn_instance
-                                                            ,socket,
-                                                            self.server.ifname)
-                    #self.server.vpn_device_adapter(socket, ifname)
-                    print(" Network device get file descriptor : %d", socket)
-                else:
-                    print("device already initialized")
-                    self.server._device_init = False
-
-                try:
-                    remote.connect((address, port))
-                    bind_address = remote.getsockname()
-                    print('Connected to %s %s' % (address, port))
-                except Exception as err:
-                    print(" error remote connection ", err)
-                    self.server.error = e
-
-            else:
-                self.server.close_request(self.request)
-
-            addr = struct.unpack("!I", socket.inet_aton(bind_address[0]))[0]
-            port = bind_address[1]
-            reply = struct.pack("!BBBBIH", SOCKS_VERSION, 0, 0, address_type,
-                                addr, port)
-
-        except Exception as err:
-            print(" error remote connection ", err)
-            self.server.error = err
-            # return connection refused error
-            reply = self.generate_failed_reply(address_type, 5)
-
-        self.connection.sendall(reply)
-
-        # establish data exchange
-        if reply[1] == 0 and cmd == 1:
+            remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            remote.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self._bind_to_interface_if_requested(remote)
+            remote.connect((address, port))
+            bind_address = remote.getsockname()
+            logging.debug("SOCKS connected to %s:%s", address, port)
+            self.connection.sendall(self._success_reply(bind_address, address_type))
             self.exchange_loop(self.connection, remote)
+        except Exception as err:
+            logging.error("SOCKS proxy error: %s", err)
+            try:
+                self.connection.sendall(self.generate_failed_reply(1, 5))
+            except Exception:
+                pass
+        finally:
+            if remote:
+                remote.close()
 
-        self.server.close_request(self.request)
+    @staticmethod
+    def _byte_value(value):
+        return value if isinstance(value, int) else ord(value)
 
-    def get_available_methods(self, n):
-        methods = []
-        for i in range(n):
-            methods.append(ord(self.connection.recv(1)))
-        return methods
+    def _recv_exact(self, size):
+        data = self.connection.recv(size)
+        if len(data) != size:
+            raise ConnectionError("Unexpected end of SOCKS client data")
+        return data
+
+    def _negotiate_authentication(self):
+        header = self._recv_exact(2)
+        version, nmethods = struct.unpack("!BB", header)
+        if version != SOCKS_VERSION or nmethods <= 0:
+            return False
+        methods = list(self._recv_exact(nmethods))
+        requires_auth = bool(self.server.username or self.server.password)
+        selected = 2 if requires_auth else 0
+        if selected not in methods:
+            self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, 0xFF))
+            return False
+        self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, selected))
+        return self.verify_credentials() if requires_auth else True
 
     def verify_credentials(self):
-        try:
-            version = ord(self.connection.recv(1))
-            assert version == 1
-        except Exception as err:
-            print(" error in getting credentials ", err)
+        version = self._byte_value(self._recv_exact(1)[0])
+        if version != 1:
+            return False
+        username_len = self._byte_value(self._recv_exact(1)[0])
+        username = self._recv_exact(username_len).decode("utf-8")
+        password_len = self._byte_value(self._recv_exact(1)[0])
+        password = self._recv_exact(password_len).decode("utf-8")
+        valid = username == self.server.username and password == self.server.password
+        self.connection.sendall(struct.pack("!BB", 1, 0 if valid else 0xFF))
+        return valid
 
-        username_len = ord(self.connection.recv(1))
-        username = self.connection.recv(username_len).decode('utf-8')
+    def _read_request(self):
+        version, cmd, _, address_type = struct.unpack("!BBBB", self._recv_exact(4))
+        if version != SOCKS_VERSION:
+            raise ValueError("Invalid SOCKS version")
+        if address_type == 1:  # IPv4
+            address = socket.inet_ntoa(self._recv_exact(4))
+        elif address_type == 3:  # Domain name
+            domain_length = self._byte_value(self._recv_exact(1)[0])
+            address = self._recv_exact(domain_length).decode("utf-8")
+        elif address_type == 4:  # IPv6
+            address = socket.inet_ntop(socket.AF_INET6, self._recv_exact(16))
+        else:
+            raise ValueError("Unsupported SOCKS address type")
+        port = struct.unpack("!H", self._recv_exact(2))[0]
+        return cmd, address, port, address_type
 
-        password_len = ord(self.connection.recv(1))
-        password = self.connection.recv(password_len).decode('utf-8')
+    def _bind_to_interface_if_requested(self, remote_socket):
+        if not self.server.ifname:
+            return
+        if vpnHopper is None:
+            logging.warning("Interface binding requested but vpnHopper is unavailable")
+            return
+        vpn_instance = vpnHopper()
+        vpnHopper.setup_if_conf_socket(vpn_instance, remote_socket.fileno(), self.server.ifname)
 
-        if username == self.server.username and password == self.server.password:
-            # success, status = 0
-            response = struct.pack("!BB", version, 0)
-            self.connection.sendall(response)
-            return True
-
-        # failure, status != 0
-        response = struct.pack("!BB", version, 0xFF)
-        self.connection.sendall(response)
-        self.server.close_request(self.request)
-        return False
+    def _success_reply(self, bind_address, address_type):
+        addr = struct.unpack("!I", socket.inet_aton(bind_address[0]))[0]
+        port = bind_address[1]
+        return struct.pack("!BBBBIH", SOCKS_VERSION, 0, 0, 1 if address_type != 4 else address_type, addr, port)
 
     def generate_failed_reply(self, address_type, error_number):
-        return struct.pack("!BBBBIH", SOCKS_VERSION, error_number, 0, address_type, 0, 0)
+        return struct.pack("!BBBBIH", SOCKS_VERSION, error_number, 0, 1, 0, 0)
 
     def exchange_loop(self, client, remote):
-
         while True:
-
-            # wait until client or remote is available for read
-            r, w, e = select.select([client, remote], [], [])
-
-            if client in r:
+            readable, _, _ = select.select([client, remote], [], [])
+            if client in readable:
                 data = client.recv(4096)
-                if remote.send(data) <= 0:
+                if not data or remote.send(data) <= 0:
                     break
-
-            if remote in r:
+            if remote in readable:
                 data = remote.recv(4096)
-                if client.send(data) <= 0:
+                if not data or client.send(data) <= 0:
                     break
 
-class customProxySock():
-    __username__=""
-    __password__=""
-    __ifname__  =""
-    def __init__(self, port=1080, __username__="username",
-                 __password__="password", __ifname__="wlp59s0"):
-        self.port = port
-        self.__username__ = __username__
-        self.__password__ = __password__
+
+class customProxySock:
+    def __init__(self, port=1080, __username__="", __password__="", __ifname__=""):
+        self.port = int(port)
+        self.__username__ = __username__ or ""
+        self.__password__ = __password__ or ""
+        self.__ifname__ = __ifname__ or ""
+        self.server = None
 
     def launchProxySock(self):
-        with ThreadingTCPServer(('127.0.0.1', self.port), SocksProxy) as self.server:
-            logging.debug(" launchProxySock")
-            self.server._device_init = False
+        with ThreadingTCPServer(("127.0.0.1", self.port), SocksProxy) as server:
+            self.server = server
             self.server.ifname = self.__ifname__
             self.server.username = self.__username__
             self.server.password = self.__password__
-            mac_address = vpnHopper().get_mac_address(self.__ifname__)
+            logging.info("SOCKS proxy listening on 127.0.0.1:%s", self.port)
             self.server.serve_forever()
-            print(" Network device mac address %s : %s )", self.__ifname__, mac_address)
 
     def getNotificationError(self):
-        logging.error("Notify error connection")
-        return self.server.error
-#    def registerErrorProxySockConnectioNotifier(self, notificationFunction):
-#        logging.error("connection was down")
-#        self.server.connectionNotifier = notificationFunction
-#
-#    def getErrorProxySockConnectioNotifier(self, notificationFunction):
-#        logging.error("connection was down")
-#        return self.server.connectionNotifier = notificationFunction
+        return getattr(self.server, "error", None)
 
     def shutdownProxySock(self):
-        self.server.shutdown
+        if self.server is not None:
+            self.server.shutdown()

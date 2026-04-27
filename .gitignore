@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite
+*.log
+*.key
+*.pem
+*.crt
+*.csr
+*.so
+.env
+credentials.json
+sessionKeyFile.key
+proxy_auth_plugin.zip
+reports/

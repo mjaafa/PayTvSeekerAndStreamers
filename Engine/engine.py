@@ -1,173 +1,174 @@
-import signal
-import threading
-import os
-import zipfile
-from multiprocessing import Process
-import sys
-from Engine.shodan_api import shodan_api
-from Engine.censys_api import censys
-from Engine.zoomeye_api import zoomeye
-from oss.customProxySock.customProxySock import customProxySock
 import logging
-from Colorer import colorer
-### selenium and chromeDriver ###
-import selenium
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from NetworkHoppingManager.vpnHopper import vpnHopper
-from notifiers import get_notifier
-PROXY_HOST = 'socks5://127.0.0.1'  # rotating proxy
-PROXY_PORT = 1080
-PROXY_USER = '0H6Q9Qmx'
-PROXY_PASS = 'fUX1QHnc'
+import os
+import threading
+import zipfile
+from pathlib import Path
 
-manifest_json = """
+
+# Selenium is optional at startup. Import it lazily only when browser
+# verification is explicitly requested. This lets local-credentials/offline
+# mode boot without installing a browser stack.
+
+def _load_selenium():
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+        try:
+            from selenium.webdriver.chrome.service import Service
+        except Exception:  # pragma: no cover - Selenium 3 fallback only
+            Service = None
+    except ImportError as err:
+        raise RuntimeError(
+            "Selenium is required only for browser verification. "
+            "Install requirements.txt or disable PAYTV_VERIFY_RESULTS_IN_BROWSER."
+        ) from err
+    return webdriver, Options, Service
+
+
+
+PROXY_HOST = os.environ.get("PAYTV_PROXY_HOST", "127.0.0.1")
+PROXY_PORT = int(os.environ.get("PAYTV_PROXY_PORT", "1080"))
+PROXY_USER = os.environ.get("PAYTV_PROXY_USER", "")
+PROXY_PASS = os.environ.get("PAYTV_PROXY_PASS", "")
+
+
+MANIFEST_JSON = """
 {
-    "version": "1.0.0",
-    "manifest_version": 2,
-    "name": "Chrome Proxy",
-    "permissions": [
-        "proxy",
-        "tabs",
-        "unlimitedStorage",
-        "storage",
-        "<all_urls>",
-        "webRequest",
-        "webRequestBlocking"
-    ],
-    "background": {
-        "scripts": ["background.js"]
-    },
-    "minimum_chrome_version":"22.0.0"
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "name": "Chrome Proxy Auth",
+  "permissions": ["proxy", "tabs", "unlimitedStorage", "storage", "<all_urls>", "webRequest", "webRequestBlocking"],
+  "background": {"scripts": ["background.js"]},
+  "minimum_chrome_version":"22.0.0"
 }
 """
 
-background_js = """
+
+BACKGROUND_JS = """
 var config = {
-        mode: "fixed_servers",
-        rules: {
-          singleProxy: {
-            scheme: "http",
-            host: "%s",
-            port: parseInt(%s)
-          },
-          bypassList: ["localhost"]
-        }
-      };
-
+  mode: "fixed_servers",
+  rules: {
+    singleProxy: {scheme: "%s", host: "%s", port: parseInt(%s)},
+    bypassList: ["localhost", "127.0.0.1"]
+  }
+};
 chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
-
 function callbackFn(details) {
-    return {
-        authCredentials: {
-            username: "%s",
-            password: "%s"
-        }
-    };
+  return {authCredentials: {username: "%s", password: "%s"}};
 }
+chrome.webRequest.onAuthRequired.addListener(callbackFn, {urls: ["<all_urls>"]}, ['blocking']);
+"""
 
-chrome.webRequest.onAuthRequired.addListener(
-            callbackFn,
-            {urls: ["<all_urls>"]},
-            ['blocking']
-);
-""" % (PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS)
 
-class engine():
-    proxyUsername   = PROXY_USER
-    proxyPassword   = PROXY_PASS
-    _init           = False;
-    __device__      = ""
+class engine:
+    """Browser/proxy factory for the legacy seeker.
 
-    def __init__(self, device="wlp59s0"):
-        logging.debug("starting Search Engine");
-        if (not self._init):
-            self._init = False
-            __device__ = device
-        else:
-            logging.info("Engine Proxy already configured getChromeDriver Instance can be done ")
+    The old implementation hard-coded proxy credentials and returned ``None``
+    because ``_init`` was never set.  This version is usable without a proxy,
+    and the local SOCKS proxy is optional.
+    """
 
-        logging.debug(" setting up VPN Hopper ")
-        __vpn_instance___ = vpnHopper()
-       # vpnHopper.vpnBounceConfManagement(__vpn_instance___, device)
-        mac_address = vpnHopper.get_mac_address(__vpn_instance___, device)
-        logging.debug(" device %s mac address get mac address %s ", device, mac_address)
-        vpnHopper.setup_if_conf_urllib3(__vpn_instance___, device)
-        logging.debug(" urllib3 setup for device ...")
-#        vpnHopper.vpnBounceConfManagement(__vpn_instance___)
+    def __init__(self, device=None, proxy_host=PROXY_HOST, proxy_port=PROXY_PORT,
+                 proxy_username=PROXY_USER, proxy_password=PROXY_PASS):
+        self.__device__ = device or os.environ.get("PAYTV_BIND_DEVICE", "")
+        self.proxy_host = proxy_host
+        self.proxy_port = int(proxy_port)
+        self.proxyUsername = proxy_username or ""
+        self.proxyPassword = proxy_password or ""
+        self.proxyProcessor = None
+        self.threadProxy = None
+        self.threadProxyStatus = None
+        self._init = True
+        logging.debug("Search engine initialized; bind device=%s", self.__device__ or "not set")
 
     def checkProxyStatus(self):
-        logging.debug(" state check thread");
+        logging.debug("Proxy status thread started")
 
-    def configureProxy(self):
-        if(self._init == True):
-            logging.debug("Proxy already initialized")
-            return
+    def configureProxy(self, port=None, username=None, password=None, device=None):
+        # Import the custom SOCKS proxy lazily. The proxy/vpn helper is optional
+        # and should not affect normal offline startup or report generation.
+        from oss.customProxySock.customProxySock import customProxySock
 
-        logging.debug("configure proxy for selenium");
-        self.proxyProcessor = customProxySock(1080, self.proxyUsername,
-                                              self.proxyPassword,
-                                              self.__device__)
-
-        self.threadProxyStatus = threading.Thread(target=self.checkProxyStatus,
-                                            name="self.checkProxyStatus",args=())
-        self.threadProxyStatus.setDaemon(True)
+        self.proxy_port = int(port or self.proxy_port)
+        self.proxyUsername = username if username is not None else self.proxyUsername
+        self.proxyPassword = password if password is not None else self.proxyPassword
+        self.__device__ = device if device is not None else self.__device__
+        self.proxyProcessor = customProxySock(
+            self.proxy_port,
+            self.proxyUsername,
+            self.proxyPassword,
+            self.__device__,
+        )
+        self.threadProxyStatus = threading.Thread(
+            target=self.checkProxyStatus,
+            name="engine.checkProxyStatus",
+            daemon=True,
+        )
         self.threadProxyStatus.start()
-
+        logging.debug("Local SOCKS proxy configured on 127.0.0.1:%s", self.proxy_port)
+        return self.proxyProcessor
 
     def startProxy(self):
-        if(self._init == True):
+        if self.proxyProcessor is None:
+            self.configureProxy()
+        if self.threadProxy and self.threadProxy.is_alive():
             return
-        ## threading maybe used to avoid blocking
-        self.threadProxy = threading.Thread(target=customProxySock.launchProxySock,
-                                            name="customProxySock.launchProxySock",args=(self.proxyProcessor,))
-        self.threadProxy.setDaemon(True)
+        self.threadProxy = threading.Thread(
+            target=self.proxyProcessor.launchProxySock,
+            name="customProxySock.launchProxySock",
+            daemon=True,
+        )
         self.threadProxy.start()
+        logging.info("Local SOCKS proxy started on 127.0.0.1:%s", self.proxy_port)
 
     def stopProxy(self):
-        logging.debug("Stopping Engine ")
-        self._init = False
-        #PID=self.threadProxy.ident
-        #self.threadProxy.join()
-        ###customProxySock.shutdownProxySock(self.proxyProcessor)
-        #self.threadProxy.stop()
-        #self.threadProxyStatus.stop()
-        ####self._init = False
-        ###os.kill(os.getpid(), signal.SIGKILL)
+        logging.debug("Stopping search engine proxy")
+        if self.proxyProcessor is not None:
+            self.proxyProcessor.shutdownProxySock()
 
-    def getChromedriverProxy(self, use_proxy=True, user_agent=None):
-        logging.debug(" gettting chrome driver instance with proxy and custom user agent")
-        if (None == user_agent):
-            useragent = "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-        if(self._init is False):
-            return None
-        logging.debug(" getChome driver ")
-        path = os.path.dirname(os.path.abspath(__file__))
-        chrome_options = webdriver.ChromeOptions()
+    def _write_proxy_auth_extension(self, proxy_scheme):
+        pluginfile = Path("proxy_auth_plugin.zip")
+        background_js = BACKGROUND_JS % (
+            proxy_scheme,
+            self.proxy_host,
+            self.proxy_port,
+            self.proxyUsername,
+            self.proxyPassword,
+        )
+        with zipfile.ZipFile(pluginfile, "w") as zp:
+            zp.writestr("manifest.json", MANIFEST_JSON)
+            zp.writestr("background.js", background_js)
+        return str(pluginfile)
+
+    def getChromedriverProxy(self, use_proxy=True, user_agent=None, headless=True):
+        webdriver, Options, Service = _load_selenium()
+        logging.debug("Creating Chrome driver; proxy=%s", use_proxy)
+        user_agent = user_agent or os.environ.get(
+            "PAYTV_USER_AGENT",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120 Safari/537.36",
+        )
+
+        options = Options()
+        options.add_argument(f"--user-agent={user_agent}")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--no-sandbox")
+        if headless:
+            options.add_argument("--headless=new")
+
         if use_proxy:
-            pluginfile = 'proxy_auth_plugin.zip'
+            proxy_scheme = os.environ.get("PAYTV_PROXY_SCHEME", "socks5")
+            if self.proxyUsername and self.proxyPassword and proxy_scheme in {"http", "https"}:
+                options.add_extension(self._write_proxy_auth_extension(proxy_scheme))
+            else:
+                options.add_argument(f"--proxy-server={proxy_scheme}://{self.proxy_host}:{self.proxy_port}")
 
-            with zipfile.ZipFile(pluginfile, 'w') as zp:
-                zp.writestr("manifest.json", manifest_json)
-                zp.writestr("background.js", background_js)
-            chrome_options.add_extension(pluginfile)
-        if useragent:
-            chrome_options.add_argument('--user-agent=%s' % useragent)
-        driver = webdriver.Chrome(
-            os.path.join(path, 'chromedriver'),
-            chrome_options=chrome_options)
-        desired_capabilities = DesiredCapabilities.CHROME.copy()
-        desired_capabilities['acceptInsecureCerts'] = True
-        profile = webdriver.ChromeOptions()
-        profile.add_argument('--ignore-certificate-errors')
-        profile.add_argument('headless')
-        driver = webdriver.Chrome(chrome_options=profile)
-        return driver
+        driver_path = os.environ.get("CHROMEDRIVER_PATH")
+        local_driver = Path(__file__).with_name("chromedriver")
+        if not driver_path and local_driver.exists():
+            driver_path = str(local_driver)
+
+        if driver_path and Service is not None:
+            return webdriver.Chrome(service=Service(driver_path), options=options)
+        return webdriver.Chrome(options=options)
